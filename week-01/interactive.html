@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 1 · From Chatbot to AI Worker</title>
+<style>
+:root{
+  --bg:#f7f6f2;--card:#ffffff;--ink:#1d1d1b;--muted:#6b6a64;--line:#e3e1d9;
+  --accent:#c2562b;--accent-soft:#f6e3d9;--ok:#2f7d4f;--ok-soft:#dff0e5;
+  --warn:#a86a00;--warn-soft:#f8ecd2;--bad:#b23b3b;--bad-soft:#f6dede;--blue:#2d5f9a;--blue-soft:#dde8f5;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#181816;--card:#222220;--ink:#eeece6;--muted:#a19f97;--line:#36352f;
+  --accent:#e07a4c;--accent-soft:#3a2a21;--ok:#5cbf83;--ok-soft:#1f3227;--warn:#e0a640;--warn-soft:#382d17;
+  --bad:#e07070;--bad-soft:#3a2222;--blue:#7aa8e0;--blue-soft:#1f2a38;}}
+:root[data-theme="dark"]{--bg:#181816;--card:#222220;--ink:#eeece6;--muted:#a19f97;--line:#36352f;
+  --accent:#e07a4c;--accent-soft:#3a2a21;--ok:#5cbf83;--ok-soft:#1f3227;--warn:#e0a640;--warn-soft:#382d17;
+  --bad:#e07070;--bad-soft:#3a2222;--blue:#7aa8e0;--blue-soft:#1f2a38;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:28px 16px 8px;max-width:1000px;margin:auto}
+h1{margin:0;font-size:clamp(22px,4vw,32px)}
+.sub{color:var(--muted);margin:4px 0 0}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:6px;overflow-x:auto;max-width:1000px;margin:auto;padding:10px 16px}
+.tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer;font:inherit;font-size:14px}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+main{max-width:1000px;margin:auto;padding:16px}
+section{display:none;animation:fade .35s ease}
+section.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+h2{margin:0 0 4px;font-size:22px}
+.lead{color:var(--muted);margin:0 0 14px}
+.btn{border:0;background:var(--accent);color:#fff;padding:9px 16px;border-radius:10px;cursor:pointer;font:inherit;font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+/* timeline (agenda) */
+.agenda{display:grid;gap:8px}
+.ag{display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:center}
+.ag .bar{height:30px;border-radius:8px;background:var(--accent-soft);position:relative;overflow:hidden}
+.ag .bar i{position:absolute;inset:0 auto 0 0;background:var(--accent);width:0;transition:width 1s ease;display:flex;align-items:center;padding-left:10px;color:#fff;font-style:normal;font-size:13px;white-space:nowrap}
+.ag small{color:var(--muted);font-variant-numeric:tabular-nums}
+/* compare */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.compare{grid-template-columns:1fr}}
+.lane{border:1px dashed var(--line);border-radius:12px;padding:12px;min-height:220px}
+.lane h3{margin:0 0 8px;font-size:15px}
+.step{opacity:.15;transform:translateX(-8px);transition:all .45s ease;padding:8px 10px;border-radius:8px;margin:6px 0;background:var(--blue-soft)}
+.step.show{opacity:1;transform:none}
+.step.you{background:var(--warn-soft)}
+/* ladder */
+.ladder{display:flex;flex-direction:column-reverse;gap:6px}
+.rung{display:grid;grid-template-columns:1fr 130px;align-items:center;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);opacity:.25;transform:scale(.97);transition:all .4s ease}
+.rung.lit{opacity:1;transform:none}
+.rung.here{border:2px solid var(--accent);background:var(--accent-soft)}
+.rung.fc{border-style:dashed}
+.rung b{font-size:15px}.rung span{text-align:right;color:var(--muted);font-size:14px}
+/* flow */
+.flow{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.node{flex:1 1 150px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card);transition:all .35s ease;position:relative}
+.node .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--line);font-size:12px;font-weight:700;margin-bottom:6px}
+.node.act{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-4px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.node.act .n{background:var(--accent);color:#fff}
+.node.done .n{background:var(--ok);color:#fff}
+.node h4{margin:0 0 4px;font-size:15px}.node p{margin:0;font-size:13px;color:var(--muted)}
+.who{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.who.h{color:var(--warn)}.who.a{color:var(--blue)}
+/* brief builder */
+.brief{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:700px){.brief{grid-template-columns:1fr 1fr}}
+.bp{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:all .3s}
+.bp:hover{border-color:var(--accent)}
+.bp.open{background:var(--accent-soft);border-color:var(--accent)}
+.bp .ex{max-height:0;overflow:hidden;transition:max-height .4s ease;font-size:13px;color:var(--muted)}
+.bp.open .ex{max-height:200px;margin-top:6px}
+/* sorter */
+.inv{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;margin:8px 0;transition:all .3s}
+.inv.right{background:var(--ok-soft);border-color:var(--ok)}
+.inv.wrong{background:var(--bad-soft);border-color:var(--bad);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.inv .meta{font-size:13px;color:var(--muted)}
+.choice button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer;font:inherit;font-size:14px;margin-left:4px}
+.fb{font-size:13px;margin-top:4px;width:100%}
+/* 10-80-10 */
+.rhythm{display:flex;height:56px;border-radius:12px;overflow:hidden;border:1px solid var(--line);position:relative}
+.rhythm div{display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff}
+.r1{background:var(--warn);flex:10}.r2{background:var(--blue);flex:80;position:relative}.r3{background:var(--ok);flex:10}
+.gate{position:absolute;left:60%;top:-8px;bottom:-8px;width:4px;background:var(--bad)}
+.gate:after{content:"Approval gate";position:absolute;top:-22px;left:-40px;font-size:11px;color:var(--bad);white-space:nowrap;font-weight:700}
+.cursor{position:absolute;top:0;bottom:0;width:3px;background:var(--ink);left:0;transition:left .1s linear}
+.rlabel{margin-top:30px;min-height:48px;padding:10px 12px;border-radius:10px;background:var(--bg)}
+/* SoR */
+.sor{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+@media(max-width:640px){.sor{grid-template-columns:1fr}}
+.sys{border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center;transition:all .3s}
+.sys.hit{border-color:var(--accent);background:var(--accent-soft);transform:scale(1.03)}
+.sys b{font-size:20px;display:block}
+.qs button{margin:4px 4px 0 0;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:13px;text-align:left}
+/* horizons */
+input[type=range]{width:100%;accent-color:var(--accent)}
+.hz{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}
+.hz div{height:10px;border-radius:6px;background:var(--line);transition:background .3s}
+.hz div.on{background:var(--accent)}
+.hzcard{padding:14px;border-radius:12px;background:var(--bg);min-height:130px}
+/* routes */
+.routes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:700px){.routes{grid-template-columns:1fr 1fr}}
+.route{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:all .3s}
+.route.on{border-color:var(--accent);background:var(--accent-soft)}
+.route h4{margin:0}
+/* storefront */
+.store{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;position:relative;margin:10px 0}
+@media(max-width:640px){.store{grid-template-columns:1fr 1fr}}
+.actor{border:2px solid var(--line);border-radius:12px;padding:14px;text-align:center;transition:all .3s;font-weight:600}
+.actor small{display:block;font-weight:400;color:var(--muted)}
+.actor.hot{border-color:var(--accent);background:var(--accent-soft)}
+.log{font-size:14px;padding:10px 12px;border-radius:10px;background:var(--bg);min-height:44px}
+/* milestones */
+.ms{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+@media(max-width:640px){.ms{grid-template-columns:repeat(3,1fr)}}
+.m{border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:all .3s}
+.m b{font-size:22px;display:block}
+.m.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* quiz */
+.q{margin-bottom:18px}.q p{font-weight:600;margin:0 0 6px}
+.opt{display:block;width:100%;text-align:left;margin:4px 0;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer;font:inherit}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.score{font-size:20px;font-weight:700}
+footer{max-width:1000px;margin:auto;padding:8px 16px 40px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Week 1 · From Chatbot to AI Worker</h1>
+  <p class="sub">NED Agentic AI 2026 · The AI Agent Factory · Interactive companion for the 2-hour session</p>
+</header>
+<nav><div class="tabs" id="tabs"></div></nav>
+<main>
+
+<!-- AGENDA -->
+<section data-t="Agenda">
+  <div class="card">
+    <h2>2-hour session map</h2>
+    <p class="lead">Press play to see how the 120 minutes are spent.</p>
+    <div class="agenda" id="agenda"></div>
+    <p><button class="btn" onclick="playAgenda()">▶ Play agenda</button></p>
+  </div>
+</section>
+
+<!-- 2.0 SHIFT -->
+<section data-t="1 · The 2.0 shift">
+  <div class="card">
+    <h2>Chatbot vs. AI Worker</h2>
+    <p class="lead">The key skill is no longer asking good questions — it is handing over work well and checking it well.</p>
+    <div class="compare">
+      <div class="lane"><h3>Before · Chatbot</h3><div id="laneA"></div></div>
+      <div class="lane"><h3>Now · AI Worker</h3><div id="laneB"></div></div>
+    </div>
+    <p><button class="btn" onclick="playShift()">▶ Run both</button></p>
+  </div>
+  <div class="card">
+    <h2>The Four-Part Brief</h2>
+    <p class="lead">Click each part to reveal the payment-run example.</p>
+    <div class="brief" id="brief"></div>
+  </div>
+  <div class="card">
+    <h2>One job, start to finish</h2>
+    <p class="lead">Brightline Wholesale Supply · weekly payment run · 15 unpaid invoices.</p>
+    <div class="flow" id="job"></div>
+    <p class="row"><button class="btn" onclick="playJob()">▶ Run the job</button><span id="jobmsg" class="lead" style="margin:0"></span></p>
+  </div>
+  <div class="card">
+    <h2>Mini-game · Pay, hold or ask?</h2>
+    <p class="lead">Policy: pay invoices due within 7 days. <b>Ask</b> a person for new suppliers, manager-approval items, or changed bank details.</p>
+    <div id="sorter"></div>
+    <p class="score" id="sortScore"></p>
+  </div>
+</section>
+
+<!-- TOUR -->
+<section data-t="2 · The Tour">
+  <div class="card">
+    <h2>Two apps, side by side</h2>
+    <p class="lead">Pick a dimension.</p>
+    <div class="row" id="dims"></div>
+    <div class="compare" style="margin-top:12px">
+      <div class="lane" style="min-height:110px"><h3>Claude desktop</h3><div id="cA"></div></div>
+      <div class="lane" style="min-height:110px"><h3>ChatGPT desktop</h3><div id="cB"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Vocabulary flip-cards</h2>
+    <p class="lead">Click a term to flip it.</p>
+    <div class="brief" id="vocab"></div>
+  </div>
+</section>
+
+<!-- PREFACE -->
+<section data-t="3 · Preface">
+  <div class="card">
+    <h2>The ladder of interaction</h2>
+    <p class="lead">Each rung moves the human from <i>doing</i> work toward <i>defining and verifying</i> it.</p>
+    <div class="ladder" id="ladder"></div>
+    <p><button class="btn" onclick="climb()">▲ Climb the ladder</button></p>
+  </div>
+  <div class="card">
+    <h2>The 10-80-10 rhythm</h2>
+    <p class="lead">Humans define intent → AI Workers execute → humans verify. An approval gate sits in the middle for irreversible actions.</p>
+    <div class="rhythm" id="rhythm"><div class="r1">10</div><div class="r2">80 · AI Worker<span class="gate"></span></div><div class="r3">10</div><span class="cursor" id="cur"></span></div>
+    <div class="rlabel" id="rlabel">Press play.</div>
+    <p><button class="btn" onclick="playRhythm()">▶ Play rhythm</button></p>
+  </div>
+  <div class="card">
+    <h2>Three systems of record</h2>
+    <p class="lead">Which system governs this? Click a situation.</p>
+    <div class="qs" id="sorq"></div>
+    <div class="sor">
+      <div class="sys" id="K"><b>KSoR</b>What it may <b style="display:inline;font-size:inherit">know</b><br><small>approved, citable knowledge</small></div>
+      <div class="sys" id="D"><b>DSoR</b>What it may <b style="display:inline;font-size:inherit">do</b><br><small>actions in real systems + evidence</small></div>
+      <div class="sys" id="S"><b>SSoR</b>What is <b style="display:inline;font-size:inherit">true now</b><br><small>commitments, task status, history</small></div>
+    </div>
+    <p class="lead" id="sorExp" style="margin-top:10px"></p>
+  </div>
+  <div class="card">
+    <h2>The five rules</h2>
+    <div class="brief" id="rules"></div>
+  </div>
+</section>
+
+<!-- HORIZONS -->
+<section data-t="4 · Five Horizons">
+  <div class="card">
+    <h2>The Five Horizons</h2>
+    <p class="lead">Drag the slider through time. Across every horizon, humans set purpose, define authority, and remain accountable.</p>
+    <input type="range" min="0" max="4" value="1" id="hzr" oninput="hz(this.value)">
+    <div class="hz" id="hzbars"><div></div><div></div><div></div><div></div><div></div></div>
+    <div class="hzcard" id="hzc"></div>
+  </div>
+</section>
+
+<!-- CERT -->
+<section data-t="5 · Certification">
+  <div class="card">
+    <h2>Milestones A → F</h2>
+    <p class="lead">"Certifications are milestones, not the product." A milestone needs <b>both</b> the exam credential and the evidence.</p>
+    <div class="ms" id="ms"></div>
+    <div class="hzcard" id="msc" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h2>Choose your route</h2>
+    <div class="routes" id="rroutes"></div>
+    <div class="hzcard" id="rrc" style="margin-top:12px">Click a route.</div>
+  </div>
+</section>
+
+<!-- INCOME -->
+<section data-t="6 · Skills to Income">
+  <div class="card">
+    <h2>Four routes to earning</h2>
+    <p class="lead">Customers pay for results: correct work, time saved, fewer errors, better decisions.</p>
+    <div class="routes" id="eroutes"></div>
+    <div class="hzcard" id="erc" style="margin-top:12px">Click a route.</div>
+  </div>
+  <div class="card">
+    <h2>The storefront model</h2>
+    <p class="lead">Interface = storefront · your server = cash register · AI = reasoning. You sell what the AI lacks.</p>
+    <div class="store">
+      <div class="actor" id="aC">👤 Customer<small>uses your tool</small></div>
+      <div class="actor" id="aI">🏪 Interface<small>plugin / app</small></div>
+      <div class="actor" id="aS">💰 Your server<small>cash register</small></div>
+      <div class="actor" id="aA">🧠 AI model<small>reasoning</small></div>
+    </div>
+    <div class="log" id="slog">Press play to trace one request.</div>
+    <p><button class="btn" onclick="playStore()">▶ Trace a request</button></p>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section data-t="Quiz">
+  <div class="card">
+    <h2>Exit ticket</h2>
+    <div id="quiz"></div>
+    <p class="score" id="qscore"></p>
+  </div>
+</section>
+</main>
+<footer>Summarised from <i>The AI Agent Factory</i> (Panaversity), agentfactory2.panaversity.org, pages approved Oct–Nov 2026. Product details change monthly.</footer>
+
+<script>
+const $=s=>document.querySelector(s), sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// tabs
+const secs=[...document.querySelectorAll('section')], tabs=$('#tabs');
+secs.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s.dataset.t;b.onclick=()=>show(i);tabs.appendChild(b)});
+function show(i){secs.forEach((s,j)=>s.classList.toggle('on',i===j));[...tabs.children].forEach((b,j)=>b.classList.toggle('on',i===j));try{localStorage.setItem('w1tab',i)}catch(e){}}
+let start=0;try{start=+localStorage.getItem('w1tab')||0}catch(e){}show(start);
+
+// agenda
+const AG=[["0:00","Welcome & setup",10],["0:10","Claude & ChatGPT 2.0",20],["0:30","The Tour",15],["0:45","Preface",20],["1:05","Break",5],["1:10","Five Horizons",10],["1:20","Certification",10],["1:30","Skills to Income",10],["1:40","Live lab",15],["1:55","Wrap-up & quiz",5]];
+$('#agenda').innerHTML=AG.map(a=>`<div class="ag"><small>${a[0]} · ${a[2]}m</small><div class="bar"><i data-w="${a[2]/20*100}">${a[1]}</i></div></div>`).join('');
+async function playAgenda(){const is=[...document.querySelectorAll('.ag i')];is.forEach(i=>i.style.width=0);for(const i of is){await sleep(220);i.style.width=Math.max(i.dataset.w,40)+'%'}}
+setTimeout(playAgenda,300);
+
+// shift
+const A=[["you","You ask a question"],["ai","AI answers in one reply"],["you","You find files"],["you","You copy text, build the sheet"],["you","You check everything"]];
+const B=[["you","You brief the result + done-when"],["ai","Works step by step on its own"],["ai","Reads files, uses browser & apps"],["ai","Runs code for calculations"],["ai","Keeps going after laptop closes"],["you","You review finished work"]];
+const mk=(arr)=>arr.map(([w,t])=>`<div class="step ${w==='you'?'you':''}"><span class="who ${w==='you'?'h':'a'}">${w==='you'?'You':'AI'}</span> · ${t}</div>`).join('');
+$('#laneA').innerHTML=mk(A);$('#laneB').innerHTML=mk(B);
+async function playShift(){const a=[...$('#laneA').children],b=[...$('#laneB').children];[...a,...b].forEach(e=>e.classList.remove('show'));for(let i=0;i<6;i++){a[i]&&a[i].classList.add('show');b[i]&&b[i].classList.add('show');await sleep(500)}}
+
+// brief
+const BR=[["Outcome","What you want + done-when","Every invoice due in the next 7 days marked pay / hold / ask; total matches the checking program."],["Format","Shape of the result","Spreadsheet: one row per invoice — decision, policy rule used, what was checked."],["Inputs","Sources to use","Invoices folder, payment policy v3 (not v2), checking program's total."],["Autonomy","How far it may act alone","Suggest only. Never approve or send payments. Leave risky invoices to a person."]];
+$('#brief').innerHTML=BR.map(b=>`<div class="bp" onclick="this.classList.toggle('open')"><b>${b[0]}</b><div style="font-size:13px">${b[1]}</div><div class="ex">${b[2]}</div></div>`).join('');
+
+// job flow
+const JOB=[["You","h","Brief","Write the four-part brief"],["AI","a","Work","Reads files, apps, browser; calculates with code; asks when stuck"],["AI","a","Return","Decision sheet, check results, list of 'ask' items"],["You","h","Check","Compare totals, review decisions, resolve 'ask' items"],["Person","h","Pay","Payment officer pays — the system blocks the AI"]];
+$('#job').innerHTML=JOB.map((j,i)=>`<div class="node"><span class="n">${i+1}</span><div class="who ${j[1]}">${j[0]}</div><h4>${j[2]}</h4><p>${j[3]}</p></div>`).join('');
+async function playJob(){const n=[...$('#job').children];n.forEach(e=>e.className='node');const msg=["Brief sent…","AI Worker running…","Results returned.","Human verifying…","Payment sent by a person ✔"];for(let i=0;i<n.length;i++){n[i].classList.add('act');$('#jobmsg').textContent=msg[i];await sleep(1100);n[i].classList.replace('act','done')}}
+
+// sorter
+const INV=[["INV-101 · Acme Paper","Due in 3 days · known supplier","pay","Due within 7 days and nothing unusual."],["INV-102 · Delta Steel","Due in 21 days","hold","Not due this week — wait."],["INV-103 · Nova Tools","Bank details changed last week","ask","Changed bank details is a common fraud sign."],["INV-104 · BrightBox (new)","First invoice from a new supplier","ask","New suppliers go to a person."],["INV-105 · Metro Freight","$18,000 · needs manager approval","ask","Manager-approval items go to a person."],["INV-106 · Ohio Packaging","Due in 5 days · known supplier","pay","Due within 7 days, clean."]];
+let sc=0,done=0;
+$('#sorter').innerHTML=INV.map((v,i)=>`<div class="inv" id="iv${i}"><div><b>${v[0]}</b><div class="meta">${v[1]}</div></div><div class="choice">${['pay','hold','ask'].map(c=>`<button onclick="pick(${i},'${c}')">${c}</button>`).join('')}</div><div class="fb" id="fb${i}"></div></div>`).join('');
+function pick(i,c){const e=$('#iv'+i);if(e.dataset.d)return;e.dataset.d=1;done++;const ok=c===INV[i][2];if(ok)sc++;e.classList.add(ok?'right':'wrong');$('#fb'+i).textContent=(ok?'✔ ':'✘ Correct: '+INV[i][2].toUpperCase()+' — ')+INV[i][3];if(done===INV.length)$('#sortScore').textContent=`Score ${sc}/${INV.length} — and remember: even a perfect sheet is evidence, not permission to pay.`}
+
+// tour compare
+const DIM={"Start a job":["Just ask — it decides when a request needs a full job.","Normal questions go to Chat; switch on Work (above the message box) for a full job."],"Watch step by step":["The Code tab — no programming needed.","Codex — a separate area for similar work."],"Outputs":["Documents, slides, designs and more — editable and shareable.","Documents, spreadsheets, presentations, simple websites."],"Laptop closed":["Cloud jobs keep running; follow on your phone. Local-file jobs need the app open.","Same: cloud jobs continue; local-file jobs need the app open."],"Autonomy":["Approve each step, or let it work with an automatic safety check on each step.","Set how much it may do and which steps need your approval."],"Cloud computer":["New, temporary computer per session — deleted afterwards.","Protected computers that may be reused; saved state can resume."]};
+$('#dims').innerHTML=Object.keys(DIM).map((k,i)=>`<button class="btn ${i?'ghost':''}" onclick="dim('${k}',this)">${k}</button>`).join('');
+function dim(k,b){[...$('#dims').children].forEach(x=>x.classList.add('ghost'));b&&b.classList.remove('ghost');for(const [id,t] of [['#cA',DIM[k][0]],['#cB',DIM[k][1]]]){const el=$(id);el.style.opacity=0;setTimeout(()=>{el.textContent=t;el.style.transition='opacity .3s';el.style.opacity=1},150)}}
+dim("Start a job");
+const VO=[["Model","The AI itself; the app is the program around it."],["Task","A job worked step by step, not one reply."],["Brief","What you give the AI when assigning a task."],["Done-when","The test the AI applies to know it's finished."],["Context","Everything the AI holds in mind at once."],["Connector","A link to another app — most use MCP."],["Skill","Saved instructions for one kind of job, your way."],["Plugin","Skills + connectors installed together."],["Permission setting","How much the AI may do before asking you."],["Effort","How hard the model thinks — slower, uses more plan."],["AI Worker platform","Gives the AI a computer, your files/apps, limits, and ways to check."],["(reported)","Fact from walkthroughs or news, not vendor docs."]];
+$('#vocab').innerHTML=VO.map(v=>`<div class="bp" onclick="this.classList.toggle('open')"><b>${v[0]}</b><div class="ex">${v[1]}</div></div>`).join('');
+
+// ladder
+const LAD=[["Search","queried"],["Chatbot","prompted"],["Agent · H0","delegated tasks"],["AI Worker · H1 — you are here","managed"],["AI Workforce · H2","composed"],["AI-Native Company · H3","built"],["Autonomous Economy · H4","governed"]];
+$('#ladder').innerHTML=LAD.map((l,i)=>`<div class="rung ${i===3?'here':''} ${i>3?'fc':''}"><b>${l[0]}</b><span>${l[1]}${i>3?' · forecast':''}</span></div>`).join('');
+async function climb(){const r=[...$('#ladder').children];r.forEach(e=>e.classList.remove('lit'));for(const e of r){await sleep(420);e.classList.add('lit')}}
+setTimeout(climb,400);
+
+// rhythm
+let rt;function playRhythm(){clearInterval(rt);let p=0;const c=$('#cur'),L=$('#rlabel');rt=setInterval(()=>{p+=.5;c.style.left=p+'%';
+ L.innerHTML=p<10?'<b>Human · define intent</b> — outcome, format, inputs, autonomy, done-when.':p<58?'<b>AI Worker · execute</b> — reads, plans, uses tools, runs code.':p<63?'<b style="color:var(--bad)">Approval gate</b> — irreversible action? A human must approve.':p<90?'<b>AI Worker · execute</b> — continues after approval.':'<b>Human · verify outcome</b> — check evidence against the done-when.';
+ if(p>=100){clearInterval(rt)}},40)}
+
+// SoR
+const SQ=[["Which policy version may the worker cite?","K","Approved knowledge it may use and cite → KSoR."],["May it create a draft entry in the accounting system?","D","Actions in real systems, with evidence → DSoR."],["Was invoice INV-103 already paid last week?","S","What has already happened → SSoR."],["Which tasks are still open from Monday?","S","Task status and open commitments → SSoR."],["Can it send an email to a supplier?","D","An action in a real system → DSoR."],["Which FAQ answers is it allowed to quote?","K","Approved knowledge → KSoR."]];
+$('#sorq').innerHTML=SQ.map((q,i)=>`<button onclick="sor(${i})">${q[0]}</button>`).join('');
+function sor(i){['K','D','S'].forEach(k=>$('#'+k).classList.toggle('hit',k===SQ[i][1]));$('#sorExp').textContent=SQ[i][2]}
+const RU=[["Ladder","Search is queried, chatbots prompted, agents delegated, AI Workers managed."],["Operating","Humans define intent, AI Workers execute, humans verify outcomes."],["Governance","Three systems of record: KSoR, DSoR, SSoR."],["Economic","Don't compete with AI for tasks — build, deploy, govern and manage the workers."],["Ownership","Platforms are rented. Knowledge and controls belong to you."]];
+$('#rules').innerHTML=RU.map(r=>`<div class="bp" onclick="this.classList.toggle('open')"><b>${r[0]} rule</b><div class="ex">${r[1]}</div></div>`).join('');
+
+// horizons
+const HZ=[["H0 · AI Agent era","2024–2026 · foundation","Agents are given delegated tasks.","Reliable tools, persistent identity, governed knowledge & action."],["H1 · AI Worker era","2026–2028 · NOW — you are here","AI Workers hold a role; people assign, govern and manage them.","Governed knowledge, clear authority, verifiable output."],["H2 · AI Workforce era","2028–2032 · next","Workforces composed from multiple AI Workers.","Assignment, coordination, management."],["H3 · AI-Native Company & Country","2032 onward","Companies run on AI work; countries build capacity to produce and export it.","Return on investment and national capacity."],["H4 · Autonomous Economy","2035 onward · possible future","Workforces manage other workforces within human-set goals, budgets and limits.","Alignment and human accountability."]];
+function hz(v){v=+v;[...$('#hzbars').children].forEach((d,i)=>d.classList.toggle('on',i<=v));const h=HZ[v];$('#hzc').innerHTML=`<span class="pill" style="background:var(--accent);color:#fff">${h[1]}</span><h3 style="margin:8px 0 4px">${h[0]}</h3><p style="margin:0 0 6px">${h[2]}</p><p style="margin:0;color:var(--muted)"><b>Challenge:</b> ${h[3]}</p>`}
+hz(1);
+
+// milestones
+const MS=[["A","Manager","PCAO-F · Parts I–II","Verified delegated-work example, Review Contract, small governed KSoR."],["B","Builder","PCDV-F · Part III","Plugin, connector, hosted agent, self-hosted runtime — built on Claude, ported to OpenAI & open source."],["C","Governed worker","PCAR-F · Parts III–IV","Digital FTE design, served KSoR, DSoR stages, SSoR tracking, eval suite, one transaction traced across all three."],["D","AI workforce","PCAR-P · Parts IV–V","Pilot package with an ROI case."],["E","Market","Part VI","Vertical decision, published slice, first client."],["F","National strategy","Part VII","Country or institutional plan."]];
+$('#ms').innerHTML=MS.map((m,i)=>`<div class="m" onclick="ms(${i})"><b>${m[0]}</b>${m[1]}</div>`).join('');
+function ms(i){[...$('#ms').children].forEach((e,j)=>e.classList.toggle('on',j<=i));const m=MS[i];$('#msc').innerHTML=`<span class="pill" style="background:var(--blue-soft);color:var(--blue)">${m[2]}</span><h3 style="margin:8px 0 4px">Milestone ${m[0]} · ${m[1]}</h3><p style="margin:0">${m[3]}</p>${i<2?'<p style="margin:6px 0 0;color:var(--muted)">Passing PCAO-F + PCAR-F opens the FDE Internship gate.</p>':''}`}
+ms(0);
+const RR=[["Leader","No exam","Understand the paradigm and lead adoption."],["Everyday professional","PCAO-F","Exit: verified delegated-work example + Review Contract."],["Domain expert","PCAO-F","Exit: written vertical decision + co-built first slice."],["Builder","PCDV-F → PCAR-F → internship","Exit: published plugin on KSoR/DSoR/SSoR with an evaluation suite."]];
+$('#rroutes').innerHTML=RR.map((r,i)=>`<div class="route" onclick="pr('#rroutes','#rrc',RR,${i})"><h4>${r[0]}</h4><small>${r[1]}</small></div>`).join('');
+const ER=[["A job","Employer · salary","Manage or build your employer's AI Workers.","Job application backed by portfolio work."],["FDE","Client / placing firm","Build AI Workers inside a client's operations.","Pilot inside one client's team."],["Client work","Per project / deliverable / retainer","Build, support and improve AI Workers as projects.","One paid project, delivered and reviewed."],["Founder product","Subscription · usage · org license","A product many customers use without you present.","Pilot with one paying customer."]];
+$('#eroutes').innerHTML=ER.map((r,i)=>`<div class="route" onclick="pr('#eroutes','#erc',ER,${i})"><h4>${r[0]}</h4><small>${r[1]}</small></div>`).join('');
+function pr(g,c,D,i){[...$(g).children].forEach((e,j)=>e.classList.toggle('on',i===j));const d=D[i];$(c).innerHTML=`<h3 style="margin:0 0 4px">${d[0]}</h3><p style="margin:0">${d[2]}</p>${d[3]?`<p style="margin:6px 0 0"><b>First milestone:</b> ${d[3]}</p>`:''}`}
+
+// storefront
+const ST=[["aC","1 · Customer uses the interface (plugin or app)."],["aI","2 · Interface calls your server."],["aS","3 · Server checks: has this customer paid?"],["aS","4 · Only then it returns your knowledge, method or data."],["aA","5 · The AI reasons over what your server returned."],["aC","6 · Customer pays through your payment page."],["aS","7 · Server records who has paid. Copying the interface can't bypass this."]];
+async function playStore(){for(const [id,t] of ST){['aC','aI','aS','aA'].forEach(k=>$('#'+k).classList.toggle('hot',k===id));$('#slog').textContent=t;await sleep(1300)}}
+
+// quiz
+const QZ=[["What makes an AI Worker different from a chatbot?",["It gives better answers","It holds a role and is managed — you hand it a whole job within limits","It never needs checking","It only works offline"],1],["Which is NOT one of the four parts of a brief?",["Outcome","Format","Inputs","Personality"],3],["What actually enforces 'never send payments'?",["A strong sentence in the brief","Permissions in the system","Effort setting","A longer context"],1],["A payment run passes every check. Can the AI now pay?",["Yes","No — passing checks is evidence, not permission","Only on weekends","If grade ≥ 9.5"],1],["Which system of record governs what a worker may DO?",["KSoR","DSoR","SSoR","CRM"],1],["Which horizon are we in now?",["H0 Agent era","H1 AI Worker era","H3 AI-Native Company","H4 Autonomous Economy"],1],["In 10-80-10, who does the last 10%?",["The AI Worker","A second AI","The human — verify outcomes","Nobody"],2],["In the storefront model, where does your value live?",["In the interface","On your server","In the model weights","In the payment page"],1]];
+let qs=0,qd=0;
+$('#quiz').innerHTML=QZ.map((q,i)=>`<div class="q"><p>${i+1}. ${q[0]}</p>${q[1].map((o,j)=>`<button class="opt" onclick="ans(${i},${j},this)">${o}</button>`).join('')}</div>`).join('');
+function ans(i,j,b){const box=b.parentElement;if(box.dataset.d)return;box.dataset.d=1;qd++;const ok=j===QZ[i][2];if(ok)qs++;b.classList.add(ok?'right':'wrong');if(!ok)box.querySelectorAll('.opt')[QZ[i][2]].classList.add('right');if(qd===QZ.length)$('#qscore').textContent=`You scored ${qs}/${QZ.length}`}
+</script>
+</body>
+</html>
