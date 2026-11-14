@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 2 · Behind the Screen, Build Something & Nisha's Cases</title>
+<style>
+:root{
+  --bg:#f7f6f2;--card:#ffffff;--ink:#1d1d1b;--muted:#6b6a64;--line:#e3e1d9;
+  --accent:#c2562b;--accent-soft:#f6e3d9;--ok:#2f7d4f;--ok-soft:#dff0e5;
+  --warn:#a86a00;--warn-soft:#f8ecd2;--bad:#b23b3b;--bad-soft:#f6dede;--blue:#2d5f9a;--blue-soft:#dde8f5;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#181816;--card:#222220;--ink:#eeece6;--muted:#a19f97;--line:#36352f;
+  --accent:#e07a4c;--accent-soft:#3a2a21;--ok:#5cbf83;--ok-soft:#1f3227;--warn:#e0a640;--warn-soft:#382d17;
+  --bad:#e07070;--bad-soft:#3a2222;--blue:#7aa8e0;--blue-soft:#1f2a38;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:28px 16px 8px;max-width:1000px;margin:auto}
+h1{margin:0;font-size:clamp(22px,4vw,32px)}
+.sub{color:var(--muted);margin:4px 0 0}
+.back{font-size:14px;font-weight:600;color:var(--accent);text-decoration:none}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:6px;overflow-x:auto;max-width:1000px;margin:auto;padding:10px 16px}
+.tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer;font:inherit;font-size:14px}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+main{max-width:1000px;margin:auto;padding:16px}
+section{display:none;animation:fade .35s ease}
+section.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+h2{margin:0 0 4px;font-size:22px}
+h3{margin:0 0 6px}
+.lead{color:var(--muted);margin:0 0 14px}
+.btn{border:0;background:var(--accent);color:#fff;padding:9px 16px;border-radius:10px;cursor:pointer;font:inherit;font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.pill.opt{background:var(--blue-soft);color:var(--blue)}
+.pill.done{background:var(--ok-soft);color:var(--ok)}
+.box{padding:14px;border-radius:12px;background:var(--bg);min-height:60px}
+/* agenda */
+.agenda{display:grid;gap:8px}
+.ag{display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:center}
+.ag .bar{height:30px;border-radius:8px;background:var(--accent-soft);position:relative;overflow:hidden}
+.ag .bar i{position:absolute;inset:0 auto 0 0;background:var(--accent);width:0;transition:width 1s ease;display:flex;align-items:center;padding-left:10px;color:#fff;font-style:normal;font-size:13px;white-space:nowrap}
+.ag small{color:var(--muted);font-variant-numeric:tabular-nums}
+/* grid cards */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.grid.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:700px){.grid,.grid.g3{grid-template-columns:1fr 1fr}}
+.bp{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:all .3s}
+.bp:hover{border-color:var(--accent)}
+.bp.open{background:var(--accent-soft);border-color:var(--accent)}
+.bp .ex{max-height:0;overflow:hidden;transition:max-height .4s ease;font-size:13px;color:var(--muted)}
+.bp.open .ex{max-height:240px;margin-top:6px}
+.bp .ic{font-size:26px;display:block}
+/* section map */
+.map{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:640px){.map{grid-template-columns:1fr}}
+.sec{border:1px solid var(--line);border-radius:12px;padding:10px 12px;opacity:.25;transform:scale(.97);transition:all .4s}
+.sec.lit{opacity:1;transform:none}
+.sec .k{font-weight:800;color:var(--accent);margin-right:6px}
+.sec.case{background:var(--accent-soft)}
+/* flow */
+.flow{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.node{flex:1 1 140px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card);transition:all .35s ease}
+.node .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--line);font-size:12px;font-weight:700;margin-bottom:6px}
+.node.act{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-4px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.node.act .n{background:var(--accent);color:#fff}
+.node.done .n{background:var(--ok);color:#fff}
+.node h4{margin:0 0 4px;font-size:15px}.node p{margin:0;font-size:13px;color:var(--muted)}
+/* office */
+.office{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.office{grid-template-columns:1fr}}
+.prot{border:2px solid var(--line);border-radius:12px;padding:14px;text-align:center;transition:all .3s}
+.prot b{font-size:18px;display:block}
+.prot.hit{border-color:var(--accent);background:var(--accent-soft);transform:scale(1.03)}
+.qs button{margin:4px 4px 0 0;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:13px;text-align:left}
+.qs button.sel{border-color:var(--accent)}
+/* sorter */
+.inv{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;margin:8px 0;transition:all .3s}
+.inv.right{background:var(--ok-soft);border-color:var(--ok)}
+.inv.wrong{background:var(--bad-soft);border-color:var(--bad);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.choice button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:13px;margin:2px}
+.fb{font-size:13px;margin-top:4px;width:100%}
+/* layers */
+.layers{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.layer{flex:1 1 120px;border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center;transition:all .3s;font-weight:700}
+.layer small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.layer.hot{border-color:var(--accent);background:var(--accent-soft)}
+.arrow{color:var(--muted);font-weight:700}
+.log{font-size:14px;padding:10px 12px;border-radius:10px;background:var(--bg);min-height:44px;margin-top:10px}
+/* ladder */
+.ladder{display:flex;flex-direction:column-reverse;gap:6px}
+.rung{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;transition:all .3s}
+.rung.on{border:2px solid var(--accent);background:var(--accent-soft)}
+.rung.fc{border-style:dashed;opacity:.7}
+.rung b{font-size:15px}.rung span{color:var(--muted);font-size:14px}
+/* case tabs */
+.ctabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ctabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:10px;cursor:pointer;font:inherit;font-size:14px}
+.ctabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cpane{display:none}.cpane.on{display:block;animation:fade .3s}
+/* grade bars */
+.gb{display:grid;grid-template-columns:110px 1fr 50px;gap:10px;align-items:center;margin:6px 0}
+.gb .t{height:22px;border-radius:6px;background:var(--line);overflow:hidden;position:relative}
+.gb .t i{position:absolute;inset:0 auto 0 0;background:var(--blue);width:0;transition:width .8s ease}
+.gb .t i.hi{background:var(--ok)}
+.gb .t:after{content:"";position:absolute;left:95%;top:0;bottom:0;border-left:2px dashed var(--bad)}
+.gb b{font-variant-numeric:tabular-nums;text-align:right}
+/* drafts */
+.drafts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:700px){.drafts{grid-template-columns:1fr}}
+.draft{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:all .3s}
+.draft.on{border-color:var(--accent);background:var(--accent-soft)}
+/* setup pieces */
+.pieces{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:640px){.pieces{grid-template-columns:1fr 1fr}}
+.pc{border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;opacity:.25;transition:all .4s}
+.pc.lit{opacity:1;border-color:var(--accent)}
+.pc b{display:block;font-size:14px}
+.recon{font-variant-numeric:tabular-nums;font-size:18px;display:grid;grid-template-columns:1fr auto;gap:4px 16px;max-width:380px}
+.recon .tot{border-top:2px solid var(--ink);font-weight:800;padding-top:4px}
+input[type=number]{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);width:140px}
+/* quiz */
+.q{margin-bottom:18px}.q p{font-weight:600;margin:0 0 6px}
+.opt{display:block;width:100%;text-align:left;margin:4px 0;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer;font:inherit}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.score{font-size:20px;font-weight:700}
+footer{max-width:1000px;margin:auto;padding:8px 16px 40px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="../index.html">← All weeks</a>
+  <h1>Week 2 · Behind the Screen, Build Something & Nisha's Cases</h1>
+  <p class="sub">NED Agentic AI 2026 · The AI Agent Factory · Claude and ChatGPT 2.0 · Interactive companion for the 2-hour session</p>
+</header>
+<nav><div class="tabs" id="tabs"></div></nav>
+<main>
+
+<!-- AGENDA -->
+<section data-t="Agenda">
+  <div class="card">
+    <h2>2-hour session map</h2>
+    <p class="lead">Press play to see how the 120 minutes are spent.</p>
+    <div class="agenda" id="agenda"></div>
+    <p><button class="btn" onclick="playAgenda()">▶ Play agenda</button></p>
+  </div>
+</section>
+
+<!-- MAP -->
+<section data-t="1 · Section map">
+  <div class="card">
+    <h2>Nine sections, read in order</h2>
+    <p class="lead">Features first, then four cases about one accountant — Nisha — whose responsibility (and cost of mistakes) keeps growing.</p>
+    <div class="map" id="map"></div>
+    <p><button class="btn" onclick="playMap()">▶ Walk the path</button></p>
+  </div>
+  <div class="card">
+    <h2>Two audiences, one skill</h2>
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="bp open"><b>For yourself</b><div class="ex">Use AI Workers well in everyday work as an accountant, analyst or manager.</div></div>
+      <div class="bp open"><b>For clients · FDE</b><div class="ex">As a Forward Deployed Engineer, set up AI Workers inside client companies, with clear limits.</div></div>
+    </div>
+    <p class="lead" style="margin-top:10px">What changes is who the work serves — and how costly a mistake is.</p>
+  </div>
+  <div class="card">
+    <h2>Why learn by cases?</h2>
+    <p class="lead">Click each reason. Feature pages teach tools; cases build judgment.</p>
+    <div class="grid g3" id="why"></div>
+  </div>
+</section>
+
+<!-- BEHIND THE SCREEN -->
+<section data-t="2 · Behind the Screen">
+  <div class="card">
+    <h2>The team behind the chat window</h2>
+    <p class="lead">Click each team member to reveal the real component.</p>
+    <div class="grid g3" id="team"></div>
+    <p class="box" style="margin-top:12px"><b>The model is a smart helper that forgets between calls. The harness turns it into a worker that remembers and finishes the job.</b></p>
+  </div>
+  <div class="card">
+    <h2>What happens when you send a message</h2>
+    <p class="lead">Trace one step of a long job through the team.</p>
+    <div class="flow" id="msg"></div>
+    <p class="row"><button class="btn" onclick="playMsg()">▶ Send a message</button><span id="msgLog" class="lead" style="margin:0"></span></p>
+  </div>
+  <div class="card">
+    <h2>Locked office or second signature?</h2>
+    <p class="lead">The office limits <b>where</b> the AI can work. Permissions and approvals limit <b>what</b> it may do. Which protection handles each situation?</p>
+    <div class="qs" id="offq"></div>
+    <div class="office" style="margin-top:12px">
+      <div class="prot" id="pO"><b>🔒 Locked office</b>Sandbox · approved sites only · keys stay at reception</div>
+      <div class="prot" id="pS"><b>✍️ Second signature</b>Permissions + approvals · checked by the system doing the action</div>
+    </div>
+    <p class="lead" id="offExp" style="margin-top:10px"></p>
+  </div>
+  <div class="card">
+    <h2>Two habits</h2>
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="bp open"><b>🔑 No secrets in chat</b><div class="ex">Never paste real passwords or secret keys. Connect apps through proper connectors.</div></div>
+      <div class="bp open"><b>📁 Least folders</b><div class="ex">When connecting Claude to your computer, share only the folders the task needs.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section data-t="3 · Architecture">
+  <div class="card">
+    <h2>Four layers <span class="pill opt">optional · technical</span></h2>
+    <p class="lead">A request moves UI → Backend → Harness ⇄ Model. Tools run in a sandbox.</p>
+    <div class="layers">
+      <div class="layer" id="L0">UI<small>app / web page</small></div><span class="arrow">→</span>
+      <div class="layer" id="L1">Backend<small>vendor servers</small></div><span class="arrow">→</span>
+      <div class="layer" id="L2">Harness<small>agent loop · tools</small></div><span class="arrow">⇄</span>
+      <div class="layer" id="L3">Model<small>stateless inference</small></div><span class="arrow">·</span>
+      <div class="layer" id="L4">Sandbox<small>microVM / container</small></div>
+    </div>
+    <div class="log" id="archLog">Press play.</div>
+    <p><button class="btn" onclick="playArch()">▶ Trace a request</button></p>
+  </div>
+  <div class="card">
+    <h2>Evidence labels · match game</h2>
+    <p class="lead">The book tags every claim with how it knows. Pick the right label.</p>
+    <div id="evid"></div>
+    <p class="score" id="evScore"></p>
+  </div>
+  <div class="card">
+    <h2>Key terms</h2>
+    <div class="grid" id="archTerms"></div>
+  </div>
+</section>
+
+<!-- BUILD SOMETHING -->
+<section data-t="4 · Build Something">
+  <div class="card">
+    <h2>Six artifact types</h2>
+    <p class="lead">Artifacts live in the <b>Artifacts tab</b>, outside the borrowed desk — so they survive when it is cleared. Click a tile.</p>
+    <div class="grid g3" id="arts"></div>
+  </div>
+  <div class="card">
+    <h2>Mini-game · Which artifact?</h2>
+    <p class="lead">Pick the artifact type that fits each job.</p>
+    <div id="artGame"></div>
+    <p class="score" id="artScore"></p>
+  </div>
+  <div class="card">
+    <h2>The four habits</h2>
+    <div class="grid" id="habits"></div>
+  </div>
+  <div class="card">
+    <h2>Artifact, file, connected app, or website?</h2>
+    <p class="lead">Brightline's payment run, four different needs.</p>
+    <div id="routeGame"></div>
+    <p class="score" id="rgScore"></p>
+    <p class="box">Thursday: share the doc for comments. Friday, after approval: export a PDF of the approved version. <b>The PDF is a copy — the approval itself needs its own record</b> (e.g. sign-off in the payment system).</p>
+  </div>
+</section>
+
+<!-- CASES -->
+<section data-t="5 · Nisha's cases">
+  <div class="card">
+    <h2>One ladder, four cases</h2>
+    <p class="lead">Nisha — a fictional chartered accountant in Karachi. Click a rung.</p>
+    <div class="ladder" id="cl"></div>
+  </div>
+  <div class="card">
+    <div class="ctabs" id="ctabs"></div>
+
+    <div class="cpane" data-c="0">
+      <h3>Case 1 · Nisha's AI Team</h3>
+      <p class="lead">Plan a book — <i>The Bilingual Accountant: Moving Between IFRS and US GAAP</i> — in one evening. Based on a real exercise run on 8 Nov 2026.</p>
+      <div class="flow" id="c1flow"></div>
+      <h4 style="margin:16px 0 4px">Claude grades its own work (target 9.5 — dashed line)</h4>
+      <div id="grades"></div>
+      <p class="row"><button class="btn" onclick="playGrades()">▶ Run three rounds</button><span class="lead" id="gMsg" style="margin:0"></span></p>
+      <div class="grid" style="margin-top:8px">
+        <div class="box"><b>19 → 2</b><br><small>unverified US GAAP topic numbers</small></div>
+        <div class="box"><b>4 → 9</b><br><small>sources</small></div>
+        <div class="box"><b>6</b><br><small>draft files saved</small></div>
+        <div class="box"><b>v6</b><br><small>final version</small></div>
+      </div>
+    </div>
+
+    <div class="cpane" data-c="1">
+      <h3>Case 2 · Nisha's First Client</h3>
+      <p class="lead">First paid job: a short IFRS → US GAAP bridge for a foreign buyer. An AI Worker runs it while she sleeps.</p>
+      <div class="box"><b>Thursday night.</b> The client wants the final bridge by 6 p.m. New York (4 a.m. Karachi) <b>and</b> nightly progress emails straight from the worker. But the <b>lease line is unchecked</b> — the contract hasn't arrived.<br><br>
+      Operating lease → bridge ends at <b>Rs 103.2 m</b> · Finance lease → <b>Rs 102.0 m</b></div>
+      <h4 style="margin:14px 0 6px">Nisha's three drafts — which would you send?</h4>
+      <div class="drafts" id="drafts"></div>
+      <div class="box" id="draftFb" style="margin-top:10px">Pick a draft.</div>
+    </div>
+
+    <div class="cpane" data-c="2">
+      <h3>Case 3 · Nisha's Firm</h3>
+      <p class="lead">A firm of three — Nisha, Sana, Hamza — and a team AI Worker in Slack with <b>its own name and accounts</b>. Client: Lakeshore Supply.</p>
+      <div class="flow" id="c3flow"></div>
+      <p class="row"><button class="btn" onclick="playC3()">▶ Play the week</button></p>
+      <h4 style="margin:14px 0 6px">Practice · does this count as an approval to send? <small class="lead">(illustrative messages)</small></h4>
+      <div id="apprGame"></div>
+      <p class="score" id="apScore"></p>
+      <p class="box"><b>Words are not locks.</b> A rule holds only if the worker reads and applies it well. A <b>skill</b> teaches a method — it can't guarantee an outcome.</p>
+    </div>
+
+    <div class="cpane" data-c="3">
+      <h3>Case 4 · Nisha's Month-End</h3>
+      <p class="lead">A monthly client report that took a junior <b>two days</b> by hand — now about <b>two hours</b> of people's time (examples, not measurements).</p>
+      <h4 style="margin:0 0 6px">The setup — features joined into one workplace</h4>
+      <div class="pieces" id="pieces"></div>
+      <p><button class="btn" onclick="playPieces()">▶ Assemble the setup</button></p>
+      <h4 style="margin:14px 0 6px">Reconciliation check</h4>
+      <div class="recon">
+        <span>Balance</span><span>$<input type="number" id="r1" value="201480" step="0.01"></span>
+        <span>+ Deposits in transit</span><span>$<input type="number" id="r2" value="6120" step="0.01"></span>
+        <span>− Outstanding items</span><span>$<input type="number" id="r3" value="9300" step="0.01"></span>
+        <span class="tot">= Adjusted</span><span class="tot" id="rt"></span>
+      </div>
+      <p class="lead" style="margin-top:6px">Change a figure to see what the Wednesday "morning check" would catch.</p>
+      <div class="box" id="reconFb"></div>
+      <div class="box" style="margin-top:10px"><b>Friday's decision:</b> 4 companies × (1 month-end + 4 weekly) = <b>20 packs</b>, some straight to the bank, for less money. What should Nisha answer?<br><br><i>"Build the setup once, and it does the job again. Your judgment is still yours."</i></div>
+    </div>
+  </div>
+</section>
+
+<!-- LAB -->
+<section data-t="Live lab">
+  <div class="card">
+    <h2>Lab · Take Nisha's method to 2.0</h2>
+    <p class="lead">Tick each step as you finish it.</p>
+    <div id="lab"></div>
+    <p class="score" id="labMsg"></p>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section data-t="Quiz">
+  <div class="card">
+    <h2>Exit ticket</h2>
+    <div id="quiz"></div>
+    <p class="score" id="qscore"></p>
+  </div>
+</section>
+</main>
+<footer>Summarised from <i>The AI Agent Factory</i> (Panaversity), agentfactory.panaversity.org/claude-and-chatgpt-2, pages approved 9–13 Nov 2026. Nisha's cases are fictional teaching cases; some exhibits are illustrative. Not accounting advice. Product details change monthly.</footer>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// tabs
+const secs=$$('main>section'), tabs=$('#tabs');
+secs.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s.dataset.t;b.onclick=()=>show(i);tabs.appendChild(b)});
+function show(i){secs.forEach((s,j)=>s.classList.toggle('on',i===j));[...tabs.children].forEach((b,j)=>b.classList.toggle('on',i===j));try{localStorage.setItem('w2tab',i)}catch(e){}}
+let start=0;try{start=+localStorage.getItem('w2tab')||0}catch(e){}show(Math.min(start,secs.length-1));
+const flip=a=>a.map(v=>`<div class="bp" onclick="this.classList.toggle('open')">${v[2]?`<span class="ic">${v[2]}</span>`:''}<b>${v[0]}</b><div class="ex">${v[1]}</div></div>`).join('');
+
+// agenda
+const AG=[["0:00","Welcome & Week 1 recap",10],["0:10","Section map & case method",10],["0:20","Behind the Screen",20],["0:40","Architecture (optional)",10],["0:50","Build Something",20],["1:10","Break",5],["1:15","Nisha's four cases",30],["1:45","Live lab",10],["1:55","Quiz",5]];
+$('#agenda').innerHTML=AG.map(a=>`<div class="ag"><small>${a[0]} · ${a[2]}m</small><div class="bar"><i data-w="${a[2]/30*100}">${a[1]}</i></div></div>`).join('');
+async function playAgenda(){const is=$$('.ag i');is.forEach(i=>i.style.width=0);for(const i of is){await sleep(220);i.style.width=Math.max(i.dataset.w,40)+'%'}}
+setTimeout(playAgenda,300);
+
+// map
+const MAP=[["The New Way of Working","Week 1 ✔",0],["Tour of the Apps","optional",0],["Behind the Screen","what keeps a job safe",0],["The Architecture","optional · technical",0],["Build Something","do before the cases",0],["Case 1 · Nisha's AI Team","a book in one evening",1],["Case 2 · Nisha's First Client","an overnight AI Worker",1],["Case 3 · Nisha's Firm","a shared worker in Slack",1],["Case 4 · Nisha's Month-End","combining tools + final assessment",1]];
+$('#map').innerHTML=MAP.map((m,i)=>`<div class="sec ${m[2]?'case':''}"><span class="k">${i+1}</span><b>${m[0]}</b><br><small class="lead">${m[1]}</small></div>`).join('');
+async function playMap(){const s=$$('.sec');s.forEach(e=>e.classList.remove('lit'));for(const e of s){await sleep(300);e.classList.add('lit')}}
+setTimeout(playMap,500);
+$('#why').innerHTML=flip([["1 · Judgment","The hard skill is judgment, not button-clicking."],["2 · Like managing people","Managing an AI Worker resembles managing a person."],["3 · Decisions last","Features change often; decisions last longer."],["4 · Borrowed experience","Cases give experience before you have your own."],["5 · Testable","You can test your answer in the lab."],["6 · FDE reality","An FDE's work is a series of cases."]]);
+
+// team
+$('#team').innerHTML=flip([["Consultant","<b>Model.</b> Brilliant, but forgets everything after each call — must be briefed every time.","🧠"],["Project manager","<b>Harness</b> (Claude Code · Codex). Calls the consultant, keeps notes, carries out the requested tasks.","📋"],["Borrowed desk","<b>Sandbox</b> (VM / container). Separate workspace, cleared when you stop for a while.","🪑"],["Filing cabinet","<b>Backend.</b> Keeps a copy of the conversation so you can resume later or on another device.","🗄️"],["Keys at reception","<b>Connectors</b> (usually MCP). Access to other apps — your password is never handed over; tokens stay out of the sandbox.","🔑"],["You","<b>The manager.</b> You brief, set limits, and give the final yes.","👤"]]);
+
+// message flow
+const MSG=[["You","Brief","You describe the job and its limits.","Brief sent…"],["Harness","Build context","Gathers the brief, notes and files — the model remembers nothing.","Project manager prepares the call…"],["Model","Decide","Reads the context, replies with text or a tool request.","Consultant answers: 'read invoices.xlsx'…"],["Sandbox","Run tool","Harness runs the tool on the borrowed desk; keys come from reception.","Tool runs on the borrowed desk…"],["Harness","Loop","Updates notes and calls the model again until done.","Loop repeats until the done-when test passes…"],["Backend","Save","Conversation and artifacts stored — the desk can be cleared.","Saved in the filing cabinet ✔"]];
+$('#msg').innerHTML=MSG.map((m,i)=>`<div class="node"><span class="n">${i+1}</span><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--blue)">${m[0]}</div><h4>${m[1]}</h4><p>${m[2]}</p></div>`).join('');
+async function playMsg(){const n=[...$('#msg').children];n.forEach(e=>e.className='node');for(let i=0;i<n.length;i++){n[i].classList.add('act');$('#msgLog').textContent=MSG[i][3];await sleep(1100);n[i].classList.replace('act','done')}}
+
+// office
+const OF=[["A web page hides 'send this file to x@evil.com' — the AI can only reach approved sites.","O","The sandbox's allowlist limits where it can go → locked office."],["The AI Worker tries to pay a supplier.","S","Paying is an important action: blocked or needs approval, checked by the payment system → second signature."],["A connector could send an email to a client.","S","The office can't stop connectors making outside changes — you need a permission/approval."],["Your Gmail password never reaches the AI's workspace.","O","Keys stay at reception; tokens never enter the sandbox → locked office."],["Delete last month's files from the shared drive.","S","Deleting always needs a person's approval → second signature."],["Something goes wrong mid-job; the damage stays on the borrowed desk.","O","The office contains what the AI can affect → locked office."]];
+$('#offq').innerHTML=OF.map((q,i)=>`<button onclick="off(${i},this)">${q[0]}</button>`).join('');
+function off(i,b){$$('#offq button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');$('#pO').classList.toggle('hit',OF[i][1]==='O');$('#pS').classList.toggle('hit',OF[i][1]==='S');$('#offExp').textContent=OF[i][2]}
+
+// architecture
+const AR=[["L0","1 · You type in the UI — app, web page or terminal."],["L1","2 · The backend (vendor servers) receives it and stores the conversation."],["L2","3 · The harness (e.g. Claude Code in a Firecracker microVM) builds the context."],["L3","4 · The model — a stateless inference service — returns text or a tool call."],["L4","5 · The harness runs the tool inside the sandbox (files, code, browser)."],["L2","6 · Loop: harness updates progress and calls the model again."],["L1","7 · Results saved by the backend; the session's sandbox is destroyed at the end."]];
+async function playArch(){for(const [id,t] of AR){$$('.layer').forEach(l=>l.classList.toggle('hot',l.id===id));$('#archLog').textContent=t;await sleep(1300)}}
+const EV=[["In the examined session, the harness ran inside a Firecracker microVM.","Observed"],["Anthropic's docs say each session gets its own sandbox, destroyed at the end.","Vendor-documented"],["The model probably runs outside the sandbox.","Inferred"],["ChatGPT described what its own tools did.","Reported by ChatGPT"],["Whether a VM runs permanently per account — not visible, not documented.","Unknown"]];
+const EVL=["Observed","Vendor-documented","Inferred","Reported by ChatGPT","Unknown"];
+let es=0,ed=0;
+$('#evid').innerHTML=EV.map((v,i)=>`<div class="inv" id="ev${i}"><div><b>${v[0]}</b></div><div class="choice">${EVL.map(l=>`<button onclick="evp(${i},'${l}')">${l}</button>`).join('')}</div><div class="fb" id="evf${i}"></div></div>`).join('');
+function evp(i,l){const e=$('#ev'+i);if(e.dataset.d)return;e.dataset.d=1;ed++;const ok=l===EV[i][1];if(ok)es++;e.classList.add(ok?'right':'wrong');$('#evf'+i).textContent=ok?'✔ Correct':'✘ Correct: '+EV[i][1];if(ed===EV.length)$('#evScore').textContent=`Score ${es}/${EV.length}`}
+$('#archTerms').innerHTML=flip([["Session","One running conversation or task, with its own sandbox and history."],["Runtime","Harness + sandbox as a product: Claude app, Claude Tag, Managed Agents, Agent SDK; ChatGPT Work, Codex."],["Scheduled task","A saved prompt that starts a new session on a schedule or trigger."],["Surface","Where you use it — web, desktop app, terminal."],["VM vs container","VM: a full simulated computer. Container: lighter, shares the host OS."],["Worker principal","The identity a worker acts under — separate from who sponsors or approves it."],["Business layer","What an organisation adds: identity, durable records, enforced authority, audit."],["Where it changes","Mostly where the harness runs: cloud sandbox, your device, or your own server."]]);
+
+// artifacts
+const ART=[["Docs","A document people read and edit.<br><b>ChatGPT:</b> Pages (Space) · <b>Plan:</b> Free","📄"],["Slides","A deck to present.<br><b>ChatGPT:</b> Slides (Space) · <b>Plan:</b> Free","🖼️"],["Design","Output judged by how it looks.<br><b>ChatGPT:</b> Sites · <b>Plan:</b> Free","🎨"],["Sheets · beta","A shared table with formulas.<br><b>ChatGPT:</b> inside Excel / Google Sheets · <b>Plan:</b> Paid","📊"],["Data","Charts from company data (formerly Dashboards).<br><b>ChatGPT:</b> @Data plugin in Work · <b>Plan:</b> Paid","📈"],["Whiteboard · beta","A shared board for thinking together.<br><b>ChatGPT:</b> none yet · <b>Plan:</b> Paid","🧩"]];
+$('#arts').innerHTML=flip(ART);
+const AJ=[["A payment-run memo the controller will comment on","Docs"],["A 10-minute talk to the board","Slides"],["A budget table with totals that update","Sheets"],["A landing-page mock-up judged on looks","Design"],["Weekly revenue charts from company data","Data"],["A team brainstorm before a project","Whiteboard"]];
+const AT=["Docs","Slides","Sheets","Design","Data","Whiteboard"];
+let as=0,ad=0;
+$('#artGame').innerHTML=AJ.map((v,i)=>`<div class="inv" id="aj${i}"><div><b>${v[0]}</b></div><div class="choice">${AT.map(t=>`<button onclick="ajp(${i},'${t}')">${t}</button>`).join('')}</div><div class="fb" id="ajf${i}"></div></div>`).join('');
+function ajp(i,t){const e=$('#aj'+i);if(e.dataset.d)return;e.dataset.d=1;ad++;const ok=t===AJ[i][1];if(ok)as++;e.classList.add(ok?'right':'wrong');$('#ajf'+i).textContent=ok?'✔ Right tool':'✘ Better: '+AJ[i][1];if(ad===AJ.length)$('#artScore').textContent=`Score ${as}/${AJ.length}`}
+$('#habits').innerHTML=flip([["1 · Request the right kind","State purpose, audience and tool. Need Word? Make the artifact, check it, export last — later edits don't change the exported file."],["2 · Refine collaboratively","Make small fixes yourself. Ask the AI for major revisions."],["3 · Share deliberately","New artifacts are private. You choose who sees them and what they can do."],["4 · Verify before release","Check numbers, names, facts. Remove private info. Could a reader understand it without your chat?"]]);
+const RG=[["Dave (controller) comments on the payment-run doc","Artifact","Ongoing work shared by link."],["Keep the exact version Dave reviewed","Exported file","A fixed snapshot to send or keep — e.g. a PDF."],["Claude reads invoices from a Google Drive folder","Connected app","Claude reads or changes another app."],["Suppliers check their payment status with a sign-in","Website","A working web page for others — e.g. a ChatGPT Site."]];
+const RT=["Artifact","Exported file","Connected app","Website"];
+let rs=0,rd=0;
+$('#routeGame').innerHTML=RG.map((v,i)=>`<div class="inv" id="rg${i}"><div><b>${v[0]}</b></div><div class="choice">${RT.map(t=>`<button onclick="rgp(${i},'${t}')">${t}</button>`).join('')}</div><div class="fb" id="rgf${i}"></div></div>`).join('');
+function rgp(i,t){const e=$('#rg'+i);if(e.dataset.d)return;e.dataset.d=1;rd++;const ok=t===RG[i][1];if(ok)rs++;e.classList.add(ok?'right':'wrong');$('#rgf'+i).textContent=(ok?'✔ ':'✘ '+RG[i][1]+' — ')+RG[i][2];if(rd===RG.length)$('#rgScore').textContent=`Score ${rs}/${RG.length}`}
+
+// cases ladder
+const CL=[["Case 1","A helper she supervises directly — a person is present the whole time.",0],["Case 2","A personal AI Worker that runs overnight and acts under her name.",1],["Case 3","A team AI Worker with its own name and accounts — three people can ask it for work.",2],["Case 4","Features joined into one setup that does a recurring job every month.",3],["Next","A business AI Worker — adds the business layer (identity, records, enforced approvals, monitoring).",-1]];
+$('#cl').innerHTML=CL.map((c,i)=>`<div class="rung ${c[2]<0?'fc':''}" onclick="${c[2]<0?'':`caseTab(${c[2]})`}"><b>${c[0]}</b><span>${c[1]}</span></div>`).join('');
+const CN=["1 · AI Team","2 · First Client","3 · Firm","4 · Month-End"];
+$('#ctabs').innerHTML=CN.map((c,i)=>`<button onclick="caseTab(${i})">Case ${c}</button>`).join('');
+function caseTab(i){[...$('#ctabs').children].forEach((b,j)=>b.classList.toggle('on',i===j));$$('.cpane').forEach((p,j)=>p.classList.toggle('on',i===j));[...$('#cl').children].forEach((r,j)=>r.classList.toggle('on',j===i))}
+caseTab(0);
+
+// case 1
+const C1=[["Nisha","Brief","Who she is, her readers, what she wants."],["Claude","Draft + grade","Scores accuracy, quality, ease out of 10."],["Claude","Revise","Rounds until every area ≥ 9.5."],["ChatGPT","Second opinion","An independent review of the draft."],["Nisha","Human check","Checks facts, makes the final call."],["Files","Save + diary","Every version saved outside the chat."]];
+$('#c1flow').innerHTML=C1.map((m,i)=>`<div class="node"><span class="n">${i+1}</span><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--blue)">${m[0]}</div><h4>${m[1]}</h4><p>${m[2]}</p></div>`).join('');
+const GR=[["Accuracy",7,9.5],["Quality",6.5,9.5],["Ease",7,9.3]];
+$('#grades').innerHTML=GR.map((g,i)=>`<div class="gb"><span>${g[0]}</span><div class="t"><i id="g${i}"></i></div><b id="gv${i}">${g[1]}</b></div>`).join('');
+function setG(k){GR.forEach((g,i)=>{const v=k===0?g[1]:k===3?g[2]:+(g[1]+(g[2]-g[1])*k/3).toFixed(1);$('#g'+i).style.width=v*10+'%';$('#g'+i).classList.toggle('hi',v>=9.5);$('#gv'+i).textContent=v})}
+setTimeout(()=>setG(0),200);
+async function playGrades(){setG(0);$('#gMsg').textContent='Version 2 — starting grades';for(let r=1;r<=3;r++){await sleep(1100);setG(r);$('#gMsg').textContent='Round '+r+(r===3?' — Ease stops at 9.3: only real readers can test it. Claude did not inflate its score.':'')}}
+
+// case 2
+const DR=[["Say yes to both","Send the full bridge tonight and let the worker email nightly updates.","Risk: emails come from <b>her</b> address — the client can't tell what she actually read. The unchecked lease line goes out as if settled."],["Keep the second signature","Send the checked lines tonight; the lease line on Monday once the contract arrives.","Keeps her review in place — but the board meets in the morning, and she may lose the client (and the five more targets he mentioned)."],["Send everything, flagged","Full bridge with the lease line marked as an unchecked operating-lease assumption, finance-lease figure beside it.","Transparent — but would a board notice a footnote? Rs 103.2 m vs Rs 102.0 m depends on contract terms she hasn't seen."]];
+$('#drafts').innerHTML=DR.map((d,i)=>`<div class="draft" onclick="draft(${i})"><b>${i+1} · ${d[0]}</b><p style="margin:4px 0 0;font-size:14px;color:var(--muted)">${d[1]}</p></div>`).join('');
+function draft(i){[...$('#drafts').children].forEach((e,j)=>e.classList.toggle('on',i===j));$('#draftFb').innerHTML=DR[i][2]+'<br><br><b>The case does not give a "right" answer.</b> The lesson: the worker can do the work while she sleeps — it cannot decide what goes out under her name.'}
+
+// case 3
+const C3=[["Setup","A worker with its own name","Joins Slack with its own accounts and a credential nobody can see."],["Rule","Two routines, one rule","Weekly schedule + the firm's sending rule — with four gaps."],["Wednesday","Approval","Nisha approves the file."],["Friday","Nisha flies","The file doesn't leave the firm — nobody else can approve."],["Monday","Sana's skill + decision","Client asks: who can release a file while Nisha is away?"]];
+$('#c3flow').innerHTML=C3.map((m,i)=>`<div class="node"><span class="n">${i+1}</span><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--blue)">${m[0]}</div><h4>${m[1]}</h4><p>${m[2]}</p></div>`).join('');
+async function playC3(){const n=[...$('#c3flow').children];n.forEach(e=>e.className='node');for(const e of n){e.classList.add('act');await sleep(1000);e.classList.replace('act','done')}}
+const AP=[["Nisha in #lakeshore: \"Approved — send the weekly file to Lakeshore.\"","yes","A clear yes from the person the rule names, about this file."],["Hamza: \"Looks fine to me 👍\"","no","Whose yes counts? If the rule names Nisha, Hamza's thumbs-up isn't the approval."],["The client: \"Just send it, we're waiting.\"","no","The client can't approve a release from the firm."],["Nisha last month: \"Approved\" (on a different file)","no","An approval for a different file doesn't carry over."],["Nisha: \"Probably OK, will check after landing.\"","no","Conditional and not yet given — not an approval."]];
+let aps=0,apd=0;
+$('#apprGame').innerHTML=AP.map((v,i)=>`<div class="inv" id="ap${i}"><div><b>${v[0]}</b></div><div class="choice"><button onclick="app(${i},'yes')">Counts</button><button onclick="app(${i},'no')">Doesn't count</button></div><div class="fb" id="apf${i}"></div></div>`).join('');
+function app(i,a){const e=$('#ap'+i);if(e.dataset.d)return;e.dataset.d=1;apd++;const ok=a===AP[i][1];if(ok)aps++;e.classList.add(ok?'right':'wrong');$('#apf'+i).textContent=(ok?'✔ ':'✘ ')+AP[i][2];if(apd===AP.length)$('#apScore').textContent=`Score ${aps}/${AP.length} — now: how would the worker tell the difference?`}
+
+// case 4
+const PC=[["Project","the client's rules"],["Skill","the firm's method"],["Connected drive","shared files"],["Local folder","files on a computer (paid)"],["Cloud computer","runs the matching program"],["Artifacts","sheet · memo · slides · cover"],["Scheduled task","the 'morning check'"],["Slack worker","the firm's AI Worker runs it"]];
+$('#pieces').innerHTML=PC.map(p=>`<div class="pc"><b>${p[0]}</b>${p[1]}</div>`).join('');
+async function playPieces(){const p=$$('.pc');p.forEach(e=>e.classList.remove('lit'));for(const e of p){await sleep(350);e.classList.add('lit')}}
+setTimeout(playPieces,600);
+const fmt=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function recon(){const t=(+$('#r1').value)+(+$('#r2').value)-(+$('#r3').value);$('#rt').textContent=fmt(t);const ok=Math.abs(t-198300)<0.005;$('#reconFb').innerHTML=ok?'✔ Matches the report sent Tuesday: <b>$198,300.00</b>.':`⚠ Morning check: adjusted figure is now <b>${fmt(t)}</b>, not $198,300.00 sent on Tuesday. → <b>Fix the setup and rerun</b>, a reviewer approves the new figure, and the client hears before her bank meeting.`}
+['#r1','#r2','#r3'].forEach(s=>$(s).oninput=recon);recon();
+
+// lab
+const LB=["Write a four-part brief for a one-page outline in your field (outcome + done-when, format, inputs, autonomy).","Ask Claude to grade it on accuracy, quality and clarity out of 10 — strict, change nothing yet.","Ask it to revise until every area reaches 9.5, max 3 rounds, with a score table each round.","Paste the result into ChatGPT for a second opinion. Note what it caught that Claude missed.","Check the facts yourself and decide. Save each version as a Docs artifact (outside the chat)."];
+$('#lab').innerHTML=LB.map((l,i)=>`<label class="inv" style="cursor:pointer;justify-content:flex-start"><input type="checkbox" onchange="labc()" style="width:20px;height:20px;accent-color:var(--accent)"> <span><b>Step ${i+1}.</b> ${l}</span></label>`).join('');
+function labc(){const c=$$('#lab input:checked').length;$('#labMsg').textContent=c===LB.length?'✔ Done — you just ran Nisha\'s Case 1 method.':`${c}/${LB.length} steps done`}
+
+// quiz
+const QZ=[["In the team picture, who is the model?",["The project manager who keeps notes","A brilliant consultant with no memory","The filing cabinet","The receptionist with the keys"],1],["What turns the model into a worker that remembers and finishes the job?",["A bigger model","The harness","The backend","The connector"],1],["Why save work outside the chat?",["Chats are public","The borrowed desk gets cleared","Files are cheaper","The model reads files faster"],1],["The locked office limits WHERE the AI works. What limits WHAT it may do?",["A longer brief","Permissions and approvals — the second signature","The sandbox","A higher effort setting"],1],["Where is every Claude artifact kept so it is still there tomorrow?",["Chat history only","The Artifacts tab in the left-side menu","Your Downloads folder","Inside the sandbox"],1],["Which artifact type fits a shared table with formulas?",["Docs","Slides","Sheets","Whiteboard"],2],["Case 2: why was 'say yes to both' risky?",["Too expensive","Emails would go out under Nisha's name with an unchecked line","ChatGPT can't send email","The client wanted a PDF"],1],["Case 3: what can an agent skill NOT do?",["Teach a method","Guarantee an outcome","Be written by staff","Be reused"],1],["Case 4: when something goes wrong, what do you fix?",["The single result by hand","The setup, so every piece stays consistent","The client's bank","Nothing — rerun as is"],1],["Which evidence label means 'the authors' conclusion, not stated by the vendor'?",["Observed","Vendor-documented","Inferred","Unknown"],2]];
+let qs=0,qd=0;
+$('#quiz').innerHTML=QZ.map((q,i)=>`<div class="q"><p>${i+1}. ${q[0]}</p>${q[1].map((o,j)=>`<button class="opt" onclick="ans(${i},${j},this)">${o}</button>`).join('')}</div>`).join('');
+function ans(i,j,b){const box=b.parentElement;if(box.dataset.d)return;box.dataset.d=1;qd++;const ok=j===QZ[i][2];if(ok)qs++;b.classList.add(ok?'right':'wrong');if(!ok)box.querySelectorAll('.opt')[QZ[i][2]].classList.add('right');if(qd===QZ.length)$('#qscore').textContent=`You scored ${qs}/${QZ.length}`}
+</script>
+</body>
+</html>
