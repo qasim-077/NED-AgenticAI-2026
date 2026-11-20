@@ -62,7 +62,7 @@ footer{margin-top:40px;color:var(--muted);font-size:14px}
   <div class="stats" id="stats"></div>
 
   <div class="toolbar">
-    <input id="q" type="search" placeholder="Search weeks and topics (e.g. brief, artifacts, Nisha)" aria-label="Search weeks and topics">
+    <input id="q" type="search" placeholder="Search weeks and topics (e.g. brief, Nisha, 4Ds, tokens)" aria-label="Search weeks and topics">
   </div>
 
   <!-- To add a week: add one object to the WEEKS list in the script below. -->
@@ -83,7 +83,12 @@ const WEEKS=[
   summary:"Who does what inside an AI Worker, why permissions keep a job safe, the six artifact types, and four cases about one accountant whose responsibility keeps growing.",
   topics:["Model · Harness · Sandbox","Locked office & second signature","Architecture","Six artifact types","Four habits","Case 1–4 · Nisha","Case method"],
   interactive:"week-02/interactive.html",notes:"week-02/",
-  sources:[["Claude & ChatGPT 2.0 overview","https://agentfactory.panaversity.org/claude-and-chatgpt-2/overview/"],["Behind the Screen","https://agentfactory.panaversity.org/claude-and-chatgpt-2/behind-the-screen/overview/"],["The Architecture","https://agentfactory.panaversity.org/claude-and-chatgpt-2/architecture/overview/"],["Build Something","https://agentfactory.panaversity.org/claude-and-chatgpt-2/build-something/overview/"],["Case 1 · Nisha's AI Team","https://agentfactory.panaversity.org/claude-and-chatgpt-2/case-1-nishas-ai-team/overview/"],["Case 2 · Nisha's First Client","https://agentfactory.panaversity.org/claude-and-chatgpt-2/case-2-nishas-first-client/overview/"],["Case 3 · Nisha's Firm","https://agentfactory.panaversity.org/claude-and-chatgpt-2/case-3-nishas-firm/overview/"],["Case 4 · Nisha's Month-End","https://agentfactory.panaversity.org/claude-and-chatgpt-2/case-4-nishas-month-end/overview/"]]}
+  sources:[["Claude & ChatGPT 2.0 overview","https://agentfactory.panaversity.org/claude-and-chatgpt-2/overview/"],["Behind the Screen","https://agentfactory.panaversity.org/claude-and-chatgpt-2/behind-the-screen/overview/"],["The Architecture","https://agentfactory.panaversity.org/claude-and-chatgpt-2/architecture/overview/"],["Build Something","https://agentfactory.panaversity.org/claude-and-chatgpt-2/build-something/overview/"],["Case 1 · Nisha's AI Team","https://agentfactory.panaversity.org/claude-and-chatgpt-2/case-1-nishas-ai-team/overview/"],["Case 2 · Nisha's First Client","https://agentfactory.panaversity.org/claude-and-chatgpt-2/case-2-nishas-first-client/overview/"],["Case 3 · Nisha's Firm","https://agentfactory.panaversity.org/claude-and-chatgpt-2/case-3-nishas-firm/overview/"],["Case 4 · Nisha's Month-End","https://agentfactory.panaversity.org/claude-and-chatgpt-2/case-4-nishas-month-end/overview/"]]},
+ {n:3,title:"How AI Works: The Machine, Markdown, the 4Ds & Judgment",
+  summary:"What sits behind an AI Worker: a predictor with two sources and no truth-checker, the markdown it reads and writes, the 4Ds of AI fluency, and the checkpoint habit that turns a fluent draft into a decision you can defend.",
+  topics:["Prediction, not lookup","Context window","Tokens","Agent loop","Markdown","Three modes","4Ds","The checkpoint","Claims & evidence","Reasoning traps","Decision note","Delegation vs surrender"],
+  interactive:"week-03/interactive.html",notes:"week-03/",
+  sources:[["Part 0 · How AI Works","https://agentfactory.panaversity.org/how-ai-works/overview/"],["0.1 What AI Actually Is","https://agentfactory.panaversity.org/how-ai-works/what-ai-actually-is/overview/"],["0.2 Markdown: The Language AI Reads and Writes","https://agentfactory.panaversity.org/how-ai-works/markdown/overview/"],["0.3 AI Fluency: The 4Ds","https://agentfactory.panaversity.org/how-ai-works/ai-fluency/overview/"],["0.4 Critical Thinking and Judgment in the AI Era","https://agentfactory.panaversity.org/how-ai-works/critical-thinking/overview/"]]}
 ];
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const topicsTotal=WEEKS.reduce((a,w)=>a+w.topics.length,0), srcTotal=WEEKS.reduce((a,w)=>a+w.sources.length,0);

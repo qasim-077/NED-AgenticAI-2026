@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 3 · How AI Works — The Machine, Markdown, the 4Ds & Judgment</title>
+<style>
+:root{
+  --bg:#f7f6f2;--card:#ffffff;--ink:#1d1d1b;--muted:#6b6a64;--line:#e3e1d9;
+  --accent:#c2562b;--accent-soft:#f6e3d9;--ok:#2f7d4f;--ok-soft:#dff0e5;
+  --warn:#a86a00;--warn-soft:#f8ecd2;--bad:#b23b3b;--bad-soft:#f6dede;--blue:#2d5f9a;--blue-soft:#dde8f5;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#181816;--card:#222220;--ink:#eeece6;--muted:#a19f97;--line:#36352f;
+  --accent:#e07a4c;--accent-soft:#3a2a21;--ok:#5cbf83;--ok-soft:#1f3227;--warn:#e0a640;--warn-soft:#382d17;
+  --bad:#e07070;--bad-soft:#3a2222;--blue:#7aa8e0;--blue-soft:#1f2a38;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:28px 16px 8px;max-width:1000px;margin:auto}
+h1{margin:0;font-size:clamp(22px,4vw,32px)}
+.sub{color:var(--muted);margin:4px 0 0}
+.back{font-size:14px;font-weight:600;color:var(--accent);text-decoration:none}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:6px;overflow-x:auto;max-width:1000px;margin:auto;padding:10px 16px}
+.tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer;font:inherit;font-size:14px}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+main{max-width:1000px;margin:auto;padding:16px}
+section{display:none;animation:fade .35s ease}
+section.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+h2{margin:0 0 4px;font-size:22px}
+h3{margin:0 0 6px}
+.lead{color:var(--muted);margin:0 0 14px}
+.kid{background:var(--blue-soft);color:var(--ink);border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:15px}
+.kid b{color:var(--blue)}
+.btn{border:0;background:var(--accent);color:#fff;padding:9px 16px;border-radius:10px;cursor:pointer;font:inherit;font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn.sm{padding:6px 12px;font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.pill.tr{background:var(--warn-soft);color:var(--warn)}
+.pill.ch{background:var(--ok-soft);color:var(--ok)}
+.pill.tl{background:var(--blue-soft);color:var(--blue)}
+.box{padding:14px;border-radius:12px;background:var(--bg);min-height:50px}
+ul.b{margin:6px 0 0;padding-left:20px}ul.b li{margin:3px 0}
+table.t{border-collapse:collapse;width:100%;font-size:14px}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+table.t th{color:var(--muted);font-weight:600}
+/* agenda */
+.agenda{display:grid;gap:8px}
+.ag{display:grid;grid-template-columns:60px 1fr;gap:10px;align-items:center}
+.ag .bar{height:30px;border-radius:8px;background:var(--accent-soft);position:relative;overflow:hidden}
+.ag .bar i{position:absolute;inset:0 auto 0 0;background:var(--accent);width:0;transition:width 1s ease;display:flex;align-items:center;padding-left:10px;color:#fff;font-style:normal;font-size:13px;white-space:nowrap}
+.ag small{color:var(--muted);font-variant-numeric:tabular-nums}
+/* grid cards */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.grid.g3{grid-template-columns:repeat(3,1fr)}.grid.g2{grid-template-columns:1fr 1fr}
+@media(max-width:760px){.grid,.grid.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.grid,.grid.g3,.grid.g2{grid-template-columns:1fr}}
+.bp{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:all .3s}
+.bp:hover{border-color:var(--accent)}
+.bp.open{background:var(--accent-soft);border-color:var(--accent)}
+.bp .ex{max-height:0;overflow:hidden;transition:max-height .4s ease;font-size:13.5px;color:var(--muted)}
+.bp.open .ex{max-height:400px;margin-top:6px}
+.bp .ic{font-size:26px;display:block}
+/* chapter map */
+.chap{border:1px solid var(--line);border-radius:12px;padding:12px;opacity:.25;transform:scale(.97);transition:all .45s}
+.chap.lit{opacity:1;transform:none;border-color:var(--accent)}
+.chap .k{font-weight:800;color:var(--accent)}
+.chap small{display:block;color:var(--muted);margin-top:6px}
+/* predictor */
+.sent{font-size:20px;margin:6px 0 12px}
+.sent .blank{display:inline-block;min-width:80px;border-bottom:3px solid var(--accent);text-align:center;font-weight:700;color:var(--accent);transition:all .2s}
+.pb{display:grid;grid-template-columns:90px 1fr 48px 34px;gap:8px;align-items:center;margin:4px 0;font-size:14px}
+.pb .t{height:18px;border-radius:6px;background:var(--line);overflow:hidden}
+.pb .t i{display:block;height:100%;background:var(--blue);width:0;transition:width .6s ease}
+.pb.pick .t i{background:var(--accent)}
+.pb b{font-variant-numeric:tabular-nums;text-align:right}
+.pb em{font-style:normal;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.ctx button{margin:3px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 11px;border-radius:999px;cursor:pointer;font:inherit;font-size:13.5px}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* window builder */
+.win{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.win{grid-template-columns:1fr}}
+.slot{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px dashed var(--line);border-radius:10px;margin:5px 0;font-size:14px;transition:all .3s}
+.slot.in{border-style:solid;border-color:var(--blue);background:var(--blue-soft)}
+.slot input{accent-color:var(--accent)}
+.meter{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin:6px 0}
+.meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .5s}
+.answer{border-radius:12px;padding:14px;border:2px solid var(--line);transition:all .3s}
+.answer.g{border-color:var(--warn);background:var(--warn-soft)}
+.answer.f{border-color:var(--ok);background:var(--ok-soft)}
+/* tokens */
+.toks{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0}
+.tok{padding:4px 8px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;font-size:15px;animation:pop .3s both}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+input[type=text],input[type=number],textarea,select{font:inherit;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+textarea{width:100%;font-family:ui-monospace,Menlo,monospace;font-size:13.5px}
+/* flow */
+.flow{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.node{flex:1 1 140px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card);transition:all .35s ease}
+.node .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--line);font-size:12px;font-weight:700;margin-bottom:6px}
+.node.act{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-4px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.node.act .n{background:var(--accent);color:#fff}
+.node h4{margin:0 0 4px;font-size:15px}.node p{margin:0;font-size:13px;color:var(--muted)}
+.log{font-size:14px;padding:10px 12px;border-radius:10px;background:var(--bg);min-height:44px;margin-top:10px;font-family:ui-monospace,Menlo,monospace}
+/* jagged */
+.jag{display:flex;align-items:flex-end;gap:8px;height:190px;padding:8px 0;border-bottom:2px solid var(--line)}
+.jag div{flex:1;border-radius:8px 8px 0 0;height:0;transition:height .8s ease;position:relative}
+.jag div span{position:absolute;top:-22px;left:0;right:0;text-align:center;font-size:18px}
+.jagl{display:flex;gap:8px;font-size:12px;color:var(--muted);text-align:center}.jagl div{flex:1}
+/* markdown */
+.md2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.md2{grid-template-columns:1fr}}
+.render{border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:230px;background:var(--card);overflow:auto}
+.render h1,.render h2,.render h3{margin:4px 0 8px;font-size:18px}
+.render table{border-collapse:collapse;font-size:14px}.render td,.render th{border:1px solid var(--line);padding:4px 8px}
+.render blockquote{margin:6px 0;padding:4px 10px;border-left:4px solid var(--accent);color:var(--muted)}
+.render pre.raw{margin:0;white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+/* sorter */
+.inv{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;margin:8px 0;transition:all .3s}
+.inv.right{background:var(--ok-soft);border-color:var(--ok)}
+.inv.wrong{background:var(--bad-soft);border-color:var(--bad);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.choice button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:13px;margin:2px}
+.fb{font-size:13px;margin-top:4px;width:100%}
+/* lanes */
+.lane{display:grid;grid-template-columns:120px repeat(3,1fr);gap:8px;align-items:stretch;margin:8px 0}
+@media(max-width:640px){.lane{grid-template-columns:1fr 1fr}}
+.lane .lab{font-weight:700;font-size:14px;display:flex;align-items:center}
+.cell{border:1px solid var(--line);border-radius:10px;padding:8px;font-size:13px;min-height:58px;transition:all .4s;opacity:.3}
+.cell.lit{opacity:1;border-color:var(--accent);background:var(--accent-soft)}
+.cell.run{background:repeating-linear-gradient(45deg,var(--bg),var(--bg) 8px,var(--card) 8px,var(--card) 16px)}
+/* checkpoint */
+.cp{display:grid;gap:8px}
+.cpq{border:1px solid var(--line);border-radius:12px;padding:12px;transition:all .35s;opacity:.35}
+.cpq.lit{opacity:1;border-color:var(--accent)}
+.cpq .a{max-height:0;overflow:hidden;transition:max-height .4s;color:var(--muted);font-size:14px}
+.cpq.lit .a{max-height:200px;margin-top:4px}
+.memo{border-left:4px solid var(--accent);padding:10px 14px;background:var(--bg);border-radius:0 12px 12px 0;font-size:14.5px}
+.memo p{margin:4px 0}
+.memo .s{cursor:pointer;border-radius:4px;padding:0 2px;transition:background .2s}
+.memo .s:hover{background:var(--warn-soft)}
+.memo .s.found{background:var(--bad-soft);text-decoration:underline wavy var(--bad)}
+/* calc */
+.calc{display:grid;grid-template-columns:repeat(3,auto) 1fr;gap:10px;align-items:end}
+@media(max-width:640px){.calc{grid-template-columns:1fr 1fr}}
+.calc label{font-size:13px;color:var(--muted);display:grid;gap:3px}
+.calc input{width:100px}
+.big{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+.shrink{display:grid;gap:8px}
+.sh{display:grid;grid-template-columns:210px 1fr 90px;gap:10px;align-items:center;font-size:14px}
+@media(max-width:600px){.sh{grid-template-columns:1fr 70px}.sh .t{grid-column:1/-1}}
+.sh .t{height:24px;border-radius:6px;background:var(--line);overflow:hidden}
+.sh .t i{display:block;height:100%;background:var(--accent);width:0;transition:width 1s ease}
+.sh b{font-variant-numeric:tabular-nums;text-align:right}
+/* grid 2x2 */
+.eg{display:grid;grid-template-columns:110px 1fr 1fr;gap:8px}
+.eg div{border-radius:10px;padding:10px;font-size:14px}
+.eg .h{font-weight:700;color:var(--muted);font-size:13px;display:flex;align-items:center}
+.eg .c{border:1px solid var(--line);cursor:pointer;transition:all .3s}
+.eg .c.on{background:var(--accent-soft);border-color:var(--accent)}
+/* stages */
+.stages{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stg{border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center;transition:all .3s}
+.stg.hit{transform:scale(1.04)}
+.stg.s1.hit{border-color:var(--ok);background:var(--ok-soft)}.stg.s2.hit{border-color:var(--warn);background:var(--warn-soft)}.stg.s3.hit{border-color:var(--bad);background:var(--bad-soft)}
+.exp{display:grid;grid-template-columns:150px 1fr 48px;gap:8px;align-items:center;font-size:14px;margin:5px 0}
+.exp .t{height:20px;background:var(--line);border-radius:6px;overflow:hidden}.exp .t i{display:block;height:100%;width:0;transition:width .9s}
+/* lab */
+.lab{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line)}
+.lab input{margin-top:5px;accent-color:var(--ok);width:18px;height:18px}
+.lab.done span{color:var(--muted);text-decoration:line-through}
+.lab small{display:block;color:var(--muted)}
+/* quiz */
+.q{margin-bottom:18px}.q p{font-weight:600;margin:0 0 6px}
+.opt{display:block;width:100%;text-align:left;margin:4px 0;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);cursor:pointer;font:inherit}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.why{font-size:13.5px;color:var(--muted);margin:4px 2px 0}
+.score{font-size:20px;font-weight:700}
+footer{max-width:1000px;margin:auto;padding:8px 16px 40px;color:var(--muted);font-size:13px}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="../index.html">← All weeks</a>
+  <h1>Week 3 · How AI Works</h1>
+  <p class="sub">NED Agentic AI 2026 · The AI Agent Factory · Part 0 — The machine, markdown, the 4Ds &amp; judgment · Interactive companion for the 2-hour session</p>
+</header>
+<nav><div class="tabs" id="tabs"></div></nav>
+<main>
+
+<!-- AGENDA -->
+<section data-t="Agenda">
+  <div class="card">
+    <h2>2-hour session map</h2>
+    <p class="lead">Press play to see how the 120 minutes are spent.</p>
+    <div class="agenda" id="agenda"></div>
+    <p><button class="btn" onclick="playAgenda()">▶ Play agenda</button></p>
+  </div>
+  <div class="card">
+    <h2>The one idea for today</h2>
+    <p class="kid">🧒 <b>Like you're 10:</b> AI is a super-fast storyteller that guesses the next word really well. It sounds sure even when it's guessing. So <b>you</b> give it the right papers, and <b>you</b> check its homework.</p>
+    <div class="grid">
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">🔮</span><b>It predicts</b><div class="ex">It continues text with likely next pieces. It never opens a database of facts.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">📄</span><b>Shape helps</b><div class="ex">Markdown marks show which line is which — but a neat page is only as right as its lines.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">🧭</span><b>4Ds</b><div class="ex">Delegation, Description, Discernment, Diligence — same four skills, different timing when AI works alone.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">⚖️</span><b>Judge it</b><div class="ex">Claim → basis → assumptions → what would change it → who decides. A fluent answer is a draft.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART MAP -->
+<section data-t="Part 0 map">
+  <div class="card">
+    <h2>Part 0 · How AI Works — four chapters</h2>
+    <p class="lead">Two chapters on the machine, two on the human. Each has a lab and one keeper file for your portfolio. All labs use <b>Brightline Wholesale Supply</b> (fictional) — its accounts payable team records, checks and pays supplier invoices.</p>
+    <div class="grid" id="chaps"></div>
+    <p class="row" style="margin-top:12px"><button class="btn" onclick="playChaps()">▶ Walk the path</button><span class="pill tl">Optional on every route · ~2 h reading + ~2 h labs</span></p>
+  </div>
+  <div class="card">
+    <h3>Who's who at Brightline</h3>
+    <div class="grid g3">
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">👨‍💼</span><b>Dave</b><div class="ex">The controller. Approves invoices over $5,000 and every weekly payment run. Signs the reconciliations.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">👩‍💻</span><b>Ana</b><div class="ex">AP analyst. Asks for "five minutes" to check the AI discount memo before it reaches the CFO.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">📜</span><b>AP policy v3</b><div class="ex">Approved 1 Sept. 4.1: over $5,000 needs the controller · 4.3: controller approves every weekly run · 5.1: never change bank details because of an email · 7.4: never change the register to match a vendor statement.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 0.1 -->
+<section data-t="0.1 · What AI is">
+  <div class="card">
+    <h2>0.1.1 · Prediction, not lookup</h2>
+    <p class="kid">🧒 <b>Like you're 10:</b> "Happy birthday to ___" — you know it's <b>you</b> without looking it up. AI does that for every word. For a song it never heard, it still picks a word that <i>sounds</i> right… that's a guess.</p>
+    <div class="row ctx" id="ctxBtns"></div>
+    <div class="sent" id="sent"></div>
+    <div id="probs"></div>
+    <p class="row" style="margin-top:10px"><button class="btn" onclick="pick()">🎲 Let the model pick</button><button class="btn ghost" onclick="pick10()">Pick 10 times</button><span id="pmsg" style="font-size:14px;color:var(--muted)"></span></p>
+    <p style="font-size:12.5px;color:var(--muted)">Illustrative numbers. A real model scores many thousands of pieces at every step.</p>
+  </div>
+
+  <div class="card">
+    <h2>The context window — build it yourself</h2>
+    <p class="lead">The model has only <b>two sources</b>: what it learned in training (frozen at the cutoff) and <b>this window</b>. Tick what the app puts in, then ask: <i>"Does a $7,800 Midwest Packaging invoice need the controller's approval?"</i></p>
+    <div class="win">
+      <div>
+        <div id="slots"></div>
+        <div style="font-size:13px;color:var(--muted)">Window used (illustrative)</div>
+        <div class="meter"><i id="meter"></i></div>
+        <p class="row"><button class="btn sm" onclick="askWin()">Send question</button><button class="btn ghost sm" onclick="newChat()">＋ New chat</button></p>
+      </div>
+      <div>
+        <div class="answer" id="ans"><b>Answer appears here</b><div style="color:var(--muted);font-size:14px">Tick some boxes and press Send.</div></div>
+        <p style="font-size:13.5px;color:var(--muted)">❌ Your chats never change the training. When it "remembers", the <b>app</b> put old text back in the window.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>0.1.2 · Tokens — why "strawberry" is hard</h2>
+    <p class="kid">🧒 The model reads <b>pieces of words</b> (tokens), not letters. It's like reading words cut into puzzle pieces — you can't easily count the r's inside a piece.</p>
+    <div class="row"><input type="text" id="tokIn" value="strawberry" aria-label="Word to split"><button class="btn sm" onclick="tokenize()">Split into tokens</button>
+      <span class="chip" onclick="setTok('strawberry')">strawberry</span><span class="chip" onclick="setTok('Brightline approval')">Brightline approval</span><span class="chip" onclick="setTok('reconciliation')">reconciliation</span><span class="chip" onclick="setTok('شکریہ بہت')">شکریہ بہت</span></div>
+    <div class="toks" id="toks"></div>
+    <div id="tokMsg" style="font-size:14px"></div>
+    <p style="font-size:12.5px;color:var(--muted)">Illustrative split. Rule of thumb: ~4 tokens ≈ 3 English words. Urdu, Arabic, Hindi, Chinese usually need more tokens per word → fill the window faster and cost more.</p>
+  </div>
+
+  <div class="card">
+    <h2>Why it sounds sure — and agrees with you</h2>
+    <div class="grid g3">
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">📻</span><b>Confidence = style</b><div class="ex">People rated confident, fluent answers higher, so the model learned one sure, tidy voice for <b>every</b> answer. Like a radio presenter reading the forecast in the same calm voice, right or wrong.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">🙂</span><b>Sycophancy</b><div class="ex">"Isn't the limit $10,000?" puts $10,000 in the window. The trained lean toward agreeing may make it say yes.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">🕳️</span><b>Hallucination</b><div class="ex">Nothing inside asks "Am I sure?". When neither source has the fact, it fills the gap with a fluent guess. A sure tone is a style, not a source.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The jagged frontier</h2>
+    <p class="lead">Skill is uneven — and not ordered by difficulty. Strong on hard tasks still needs checking on easy ones. Re-test every new model.</p>
+    <div class="jag" id="jag"></div><div class="jagl" id="jagl"></div>
+    <p><button class="btn sm" onclick="drawJag()">▶ Draw the frontier</button></p>
+  </div>
+
+  <div class="card">
+    <h2>0.1.3 · From predictor to worker — the agent loop</h2>
+    <p class="kid">🧒 Making soup: you <b>taste</b>, add salt, taste again. The spoon gives new information — but <b>you</b> still judge the taste. A tool result is evidence, not proof.</p>
+    <div class="flow" id="loop">
+      <div class="node"><span class="n">1</span><h4>Predict</h4><p>Model writes its next step (a tool request)</p></div>
+      <div class="node"><span class="n">2</span><h4>Act</h4><p>The <b>app</b> runs the tool</p></div>
+      <div class="node"><span class="n">3</span><h4>Observe</h4><p>Result goes into the window</p></div>
+      <div class="node"><span class="n">✓</span><h4>You check</h4><p>Read the result yourself</p></div>
+    </div>
+    <div class="log" id="loopLog">Task: "Count the r's in the policy sentence — by running code."</div>
+    <p><button class="btn sm" onclick="runLoop()">▶ Run the loop</button></p>
+    <div class="grid" style="margin-top:8px">
+      <div class="bp" onclick="this.classList.toggle('open')"><b>💭 Thinking</b><div class="ex">The model writes its working before answering. Often better on hard problems — but it's more predicted text, not a truth-checker.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><b>🎚️ Effort</b><div class="ex">How much working it writes. More effort = more time &amp; tokens. No new source, no checker.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><b>🔌 Connector / MCP</b><div class="ex">Links AI to your other apps (email, drive) — only what you allow. Many use the open Model Context Protocol.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><b>🧰 Skill · Plugin</b><div class="ex">Skill = saved written procedure loaded when needed. Plugin = a package of skills + connectors. Each addition is a choice.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>0.1.4 · Both vendors' models <span class="pill tr">checked Oct–Nov 2026</span></h2>
+    <table class="t">
+      <tr><th></th><th>Anthropic (Claude)</th><th>OpenAI (ChatGPT)</th></tr>
+      <tr><td>Families</td><td>Tiers: Haiku · Sonnet · Opus · Fable</td><td>Generations GPT-5.6 / GPT-6, tiers Luna · Terra · Sol; GPT-6 Astra</td></tr>
+      <tr><td>Free plan</td><td>Haiku &amp; Sonnet</td><td>"The free plan's model" (OpenAI pages disagree)</td></tr>
+      <tr><td>Thinking</td><td>Effort Low → Max; always on</td><td>Slider on paid; "Think for harder questions" on free</td></tr>
+      <tr><td>Stated cutoff</td><td>June 2026 (all four)</td><td>Developer pages only (Sol 20 Apr · Astra 30 Apr 2026)</td></tr>
+    </table>
+    <p style="font-size:14px;margin-bottom:0"><b>Compare models by the job, not the name.</b> Anything after the cutoff reaches the model only through the window (web search or pasted text).</p>
+  </div>
+</section>
+
+<!-- 0.2 -->
+<section data-t="0.2 · Markdown">
+  <div class="card">
+    <h2>One reply, three destinations</h2>
+    <p class="kid">🧒 <b>Like you're 10:</b> Markdown is like a recipe card — <code>#</code> is the title, <code>-</code> is a list item, <code>**</code> makes bold. The <b>model writes the marks</b>; the <b>app draws</b> the page.</p>
+    <p class="lead">Friday 18 Sept, 4:40 p.m. You paste the AI's payment list into the payment run's note box. Pick where it lands:</p>
+    <div class="row" id="dest"></div>
+    <div class="md2" style="margin-top:12px">
+      <div><div style="font-size:13px;color:var(--muted);margin-bottom:4px">What the model wrote (edit me!)</div><textarea id="mdIn" rows="14" aria-label="Markdown source"></textarea></div>
+      <div><div style="font-size:13px;color:var(--muted);margin-bottom:4px" id="destLbl"></div><div class="render" id="mdOut"></div></div>
+    </div>
+    <div class="box" id="destMsg" style="margin-top:10px;font-size:14px"></div>
+    <p style="font-size:12.5px;color:var(--muted);margin-bottom:0">Invoice rows are illustrative; the six-invoice total of $14,439.10 is from the book.</p>
+  </div>
+
+  <div class="card">
+    <h2>Pick the shape for the next reader</h2>
+    <p class="kid">🧒 An airline keeps <b>one</b> trip record and prints boarding passes from it. Seat changes? Fix the <b>record</b>, never a pass with a pen.</p>
+    <div class="grid">
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">🤖</span><b>An AI, or you later</b><div class="ex">→ <b>Markdown page</b>. Plain text that keeps its shape anywhere; easy to check line by line.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">✍️</span><b>A person who signs</b><div class="ex">→ <b>Word or PDF</b>. Prints and files; a PDF looks the same everywhere.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">📊</span><b>A spreadsheet</b><div class="ex">→ <b>CSV table</b>. One row per record, one column per value.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><span class="ic">🖥️</span><b>A person on screen</b><div class="ex">→ <b>Web page</b>. Styled tables, charts, buttons. Make it from the checked page.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Sort Brightline's AP notes — and check them against policy v3</h2>
+    <p class="lead">A neat page is only as right as its lines. For each note, choose where it belongs.</p>
+    <div id="apSort"></div>
+    <p class="score" id="apScore"></p>
+  </div>
+
+  <div class="card">
+    <h3>Write a specification you can check</h3>
+    <p class="lead">Like a print-shop order form — one line per thing the copy must keep. Click each line to see if it's checkable.</p>
+    <div id="spec"></div>
+  </div>
+</section>
+
+<!-- 0.3 -->
+<section data-t="0.3 · The 4Ds">
+  <div class="card">
+    <h2>0.3.1 · Three ways to work with AI</h2>
+    <p class="kid">🧒 <b>Dinner three ways:</b> give a cook a recipe (<b>automation</b>) · cook together, tasting as you go (<b>augmentation</b>) · hire a cook for nights you're out (<b>agency</b>).</p>
+    <table class="t" style="margin-bottom:12px">
+      <tr><th>Mode</th><th>Who picks the next step</th><th>Are you there?</th></tr>
+      <tr><td><b>Automation</b></td><td>You, in your instructions</td><td>When you ask + when it returns</td></tr>
+      <tr><td><b>Augmentation</b></td><td>You and AI, turn by turn</td><td>Every turn</td></tr>
+      <tr><td><b>Agency</b></td><td>The AI, inside what you set up</td><td>No — result arrives later</td></tr>
+    </table>
+    <div id="modeSort"></div>
+    <p style="font-size:14px"><b>A mode is not a permission.</b> The monthly reconciliation runs in agency — and may still change nothing at all.</p>
+  </div>
+
+  <div class="card">
+    <h2>0.3.2 · The four Ds — and their 12 parts</h2>
+    <p class="kid">🧒 <b>The babysitter:</b> you <b>decide</b> what she does, <b>write</b> the rules before you leave, <b>check</b> in the morning, and <b>take responsibility</b> for the evening.</p>
+    <div class="grid" id="fourD"></div>
+    <p style="font-size:13px;color:var(--muted)">From the AI Fluency Framework — Rick Dakan, Joseph Feller &amp; Anthropic (CC BY-NC-SA 4.0). Tap a card.</p>
+  </div>
+
+  <div class="card">
+    <h2>Same 4Ds, moved in time</h2>
+    <p class="lead">In a chat you do all four at every turn. When the AI works alone, nobody acts during the run.</p>
+    <div class="row"><button class="chip on" id="lnChat" onclick="lanes('chat')">💬 In a chat</button><button class="chip" id="lnAlone" onclick="lanes('alone')">🌙 AI works alone</button></div>
+    <div class="lane" style="margin-top:10px"><div class="lab"></div><div class="h" style="font-size:13px;color:var(--muted);font-weight:700">Before</div><div style="font-size:13px;color:var(--muted);font-weight:700">During the work</div><div style="font-size:13px;color:var(--muted);font-weight:700">After</div></div>
+    <div id="laneRows"></div>
+    <div class="box" id="laneMsg" style="font-size:14px;margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <h2>0.3.3 · Dave's 4D plan — the reconciliation timeline</h2>
+    <div class="flow" id="dtl">
+      <div class="node"><span class="n">1</span><h4>Mon 24 Aug 9:00</h4><p>Dave writes the 4D plan (markdown page)</p></div>
+      <div class="node"><span class="n">2</span><h4>Tue 1 Sep 2:00 pm</h4><p>Run starts on its own · nobody watches · leaves table + record</p></div>
+      <div class="node"><span class="n">3</span><h4>Wed 9:00 am</h4><p>Discernment: reads table + record, checks 2 differences vs invoices</p></div>
+      <div class="node"><span class="n">4</span><h4>Thu 3 Sep</h4><p>Dave signs before the deadline ✔</p></div>
+    </div>
+    <div class="log" id="dtlLog" style="font-family:inherit">Press play.</div>
+    <p><button class="btn sm" onclick="playDave()">▶ Play the month</button></p>
+  </div>
+
+  <div class="card">
+    <h2>Name the next D</h2>
+    <div id="nextD"></div>
+  </div>
+
+  <div class="card">
+    <h2>Build your 4D plan</h2>
+    <p class="lead">Lab 0.3 job: <i>every Monday 7:00, make a table of invoices due that week from Brightline's register.</i> Edit the lines, then copy or download <code>4d-plan.md</code>.</p>
+    <div id="planIn"></div>
+    <textarea id="planOut" rows="10" readonly aria-label="4D plan markdown" style="margin-top:10px"></textarea>
+    <p class="row"><button class="btn sm" onclick="copyTxt('planOut')">Copy</button><button class="btn ghost sm" onclick="dl('planOut','4d-plan.md')">⬇ Download 4d-plan.md</button></p>
+  </div>
+</section>
+
+<!-- 0.4 -->
+<section data-t="0.4 · Judgment">
+  <div class="card">
+    <h2>The discount memo — spot the traps</h2>
+    <p class="kid">🧒 <b>Like you're 10:</b> You type 12 × 5 instead of 12 × 50 and the calculator says 60, instantly and confidently. <b>Noticing 60 can't be right is your job.</b></p>
+    <p class="lead">Dave asked AI to <b>"confirm"</b> Brightline should take every early-payment discount. Click every sentence you think has a problem.</p>
+    <div class="memo" id="memo"></div>
+    <div class="box" id="trapMsg" style="margin-top:10px;font-size:14px">Found 0 of 5 problems.</div>
+  </div>
+
+  <div class="card">
+    <h2>0.4.2 · The checkpoint</h2>
+    <p class="kid">🧒 Pilots run a checklist before <b>every</b> takeoff — even after thousands of flights.</p>
+    <div class="cp" id="cp"></div>
+    <p class="row"><button class="btn sm" onclick="cpNext()">Next question →</button><button class="btn ghost sm" onclick="cpReset()">Reset</button></p>
+  </div>
+
+  <div class="card">
+    <h2>0.4.3 · What's the evidence status?</h2>
+    <div id="claimSort"></div>
+  </div>
+
+  <div class="card">
+    <h2>Is paying early free? — discount calculator</h2>
+    <p class="lead">Annual return of <b>d/n net N</b> = d ÷ (1 − d) × 365 ÷ (N − n). Compare it with Brightline's 9 % borrowing cost.</p>
+    <div class="row" style="margin-bottom:10px"><span class="chip" onclick="preset(2,10,30)">2/10 net 30</span><span class="chip" onclick="preset(1,10,30)">1/10 net 30</span><span class="chip" onclick="preset(1,10,60)">1/10 net 60</span></div>
+    <div class="calc">
+      <label>Discount d (%)<input type="number" id="cd" value="2" step="0.5" min="0"></label>
+      <label>Within n days<input type="number" id="cn" value="10" min="0"></label>
+      <label>Net N days<input type="number" id="cN" value="30" min="1"></label>
+      <div><div class="big" id="cr">—</div><div id="cv" style="font-weight:700"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Watch $42,264 shrink</h2>
+    <p class="lead">What happens to the memo's number when you check it against the real Q3 invoice file (Lab 0.4).</p>
+    <div class="shrink" id="shrink"></div>
+    <p><button class="btn sm" onclick="playShrink()">▶ Check the numbers</button></p>
+  </div>
+
+  <div class="card">
+    <h2>0.4.5 · How much evidence is enough?</h2>
+    <div class="eg" id="eg"></div>
+    <div class="box" id="egMsg" style="margin-top:10px;font-size:14px">Tap a box.</div>
+    <div class="grid g3" style="margin-top:12px">
+      <div class="bp" onclick="this.classList.toggle('open')"><b>⏳ Waiting is a decision</b><div class="ex">"I need more data first" is a choice — usually a weaker one. Like a 40 % rain forecast: decide about the umbrella now.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><b>🔁 Second-order effects</b><div class="ex">Pay early → save discount → use up cash → must borrow at 9 %.</div></div>
+      <div class="bp" onclick="this.classList.toggle('open')"><b>⚰️ Premortem</b><div class="ex">"Six months later it went badly — why?" → "We paid early and had to borrow from the bank."</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>0.4.6 · Delegation → deferral → surrender</h2>
+    <p class="kid">🧒 If you always follow GPS you never learn the roads — and you only notice when the signal drops.</p>
+    <div class="stages"><div class="stg s1"><b>✅ Delegation</b><br><small>"I check"</small></div><div class="stg s2"><b>⚠️ Deferral</b><br><small>"I could, but I don't"</small></div><div class="stg s3"><b>❌ Surrender</b><br><small>"I can't say what I'd check"</small></div></div>
+    <div id="stageQ" style="margin-top:12px"></div>
+    <h3 style="margin-top:16px">Shaw &amp; Nave (2026) — logic puzzles, % correct</h3>
+    <div id="expBars"></div>
+    <p style="font-size:13.5px;color:var(--muted)">With a wrong chatbot people did <b>worse than alone</b> — and felt more confident. Short-term study; long-term skill loss is a warned-about risk, not a measured fact.</p>
+    <p><button class="btn sm" onclick="drawExp()">▶ Show results</button></p>
+  </div>
+
+  <div class="card">
+    <h2>Write the decision note</h2>
+    <p class="lead">One page, recommendation first. Edit, then download <code>brightline-decision-note.md</code>.</p>
+    <div id="noteIn"></div>
+    <textarea id="noteOut" rows="12" readonly aria-label="Decision note markdown" style="margin-top:10px"></textarea>
+    <p class="row"><button class="btn sm" onclick="copyTxt('noteOut')">Copy</button><button class="btn ghost sm" onclick="dl('noteOut','brightline-decision-note.md')">⬇ Download</button></p>
+  </div>
+</section>
+
+<!-- LABS -->
+<section data-t="Labs">
+  <div class="card">
+    <h2>Four labs → four keeper files</h2>
+    <p class="lead">Homework. Use a free Claude or ChatGPT account and only invented data. Tick steps as you go (saved in this browser).</p>
+    <div id="labs"></div>
+    <p class="score" id="labMsg"></p>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section data-t="Quiz">
+  <div class="card">
+    <h2>Exit ticket</h2>
+    <div id="quiz"></div>
+    <p class="score" id="qscore"></p>
+  </div>
+</section>
+</main>
+<footer>Summarised from <i>The AI Agent Factory</i> (Panaversity), Part 0 · How AI Works, pages approved 17 Oct – 20 Nov 2026. Brightline Wholesale Supply, Dave, Ana and Sara are fictional teaching examples. Probabilities and token splits on this page are illustrative. Model names and menus change often. Not accounting or financial advice.</footer>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+// tabs
+const secs=$$('main>section'), tabs=$('#tabs');
+secs.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s.dataset.t;b.onclick=()=>show(i);tabs.appendChild(b)});
+function show(i){secs.forEach((s,j)=>s.classList.toggle('on',i===j));[...tabs.children].forEach((b,j)=>b.classList.toggle('on',i===j));store.set('w3tab',i);window.scrollTo({top:0})}
+show(Math.min(store.get('w3tab',0),secs.length-1));
+
+// agenda
+const AG=[["0:00","Welcome, recap & Part 0 map",10],["0:10","0.1 What AI actually is",30],["0:40","0.2 Markdown",15],["0:55","0.3 AI Fluency: the 4Ds",25],["1:20","Break",5],["1:25","0.4 Critical thinking & judgment",30],["1:55","Quiz & homework",5]];
+$('#agenda').innerHTML=AG.map(a=>`<div class="ag"><small>${a[0]}</small><div class="bar"><i data-w="${a[2]/30*100}">${a[1]} · ${a[2]} min</i></div></div>`).join('');
+async function playAgenda(){const bars=$$('#agenda i');bars.forEach(b=>b.style.width=0);for(const b of bars){await sleep(250);b.style.width=Math.max(b.dataset.w,38)+'%'}}
+
+// chapters
+const CH=[["0.1","What AI Actually Is","Predicts text; no truth-checker","📓 AI field notes"],["0.2","Markdown","Marks give shape; neat ≠ checked","📄 brightline-ap-notes.md"],["0.3","AI Fluency: the 4Ds","Delegation · Description · Discernment · Diligence","🧭 4d-plan.md"],["0.4","Critical Thinking & Judgment","Checkpoint habit; judgment is the job","⚖️ brightline-decision-note.md"]];
+$('#chaps').innerHTML=CH.map(c=>`<div class="chap"><span class="k">${c[0]}</span> <b>${c[1]}</b><div style="font-size:14px;margin-top:4px">${c[2]}</div><small>Keeper: ${c[3]}</small></div>`).join('');
+async function playChaps(){const c=$$('.chap');c.forEach(x=>x.classList.remove('lit'));for(const x of c){await sleep(450);x.classList.add('lit')}}
+setTimeout(()=>$$('.chap').forEach(x=>x.classList.add('lit')),300);
+
+// predictor
+const CTX=[
+ {k:"Song it knows",s:"Happy birthday to",p:[["you",96],["me",2],["your",1],["everyone",1]],note:"A pattern it has seen thousands of times → nearly always the same pick."},
+ {k:"Common fact",s:"The capital of France is",p:[["Paris",97],["a",1],["the",1],["located",1]],note:"\"Paris\" wins because these words appear together very often in training — not because it looked it up."},
+ {k:"Brightline (never seen)",s:"Brightline's invoice approval limit is $",p:[["10,000",31],["5,000",24],["2,500",18],["25,000",15],["1,000",12]],note:"It never read Brightline's policy. The odds are spread out — whatever it picks is a fluent <b>guess</b>."},
+ {k:"Brightline + policy in window",s:"[Policy 4.1: over $5,000 needs the controller] Brightline's approval limit is $",p:[["5,000",98],["10,000",1],["2,500",1]],note:"Now the policy is in the context window, so the right answer is the likely one. Same model — different window."}];
+let ci=0,tally={};
+$('#ctxBtns').innerHTML=CTX.map((c,i)=>`<button class="chip" onclick="setCtx(${i})">${c.k}</button>`).join('');
+function setCtx(i){ci=i;tally={};[...$('#ctxBtns').children].forEach((b,j)=>b.classList.toggle('on',i===j));const c=CTX[i];
+ $('#sent').innerHTML=`${esc(c.s)} <span class="blank" id="blank">___</span>`;
+ $('#probs').innerHTML=c.p.map(p=>`<div class="pb" data-w="${esc(p[0])}"><span>${esc(p[0])}</span><div class="t"><i></i></div><b>${p[1]}%</b><em>0</em></div>`).join('');
+ requestAnimationFrame(()=>$$('#probs .t i').forEach((el,j)=>el.style.width=c.p[j][1]+'%'));
+ $('#pmsg').innerHTML='';}
+function sample(){const p=CTX[ci].p;let r=Math.random()*100;for(const x of p){if((r-=x[1])<0)return x[0]}return p[0][0]}
+function pick(show=true){const w=sample();tally[w]=(tally[w]||0)+1;$('#blank').textContent=w;$$('#probs .pb').forEach(r=>{r.classList.toggle('pick',r.dataset.w===w);r.querySelector('em').textContent=tally[r.dataset.w]||0});if(show)$('#pmsg').innerHTML=CTX[ci].note;return w}
+async function pick10(){for(let i=0;i<10;i++){pick(false);await sleep(140)}$('#pmsg').innerHTML=CTX[ci].note+' (Grey numbers = how many times each was picked.)'}
+setCtx(0);
+
+// context window builder
+const SLOTS=[["q","Your message (the question)",1,8],["sys","Standing instructions / system prompt",0,10],["pol","Attached file: AP policy v3 (line 4.1)",0,25],["mem","Memory note: \"Brightline limit is $5,000\"",0,4],["hist","Conversation so far",0,20],["web","Tool result: web search",0,15]];
+let win=store.get('w3win',{q:1});
+function drawSlots(){$('#slots').innerHTML=SLOTS.map(s=>`<label class="slot ${win[s[0]]?'in':''}"><input type="checkbox" ${win[s[0]]?'checked':''} ${s[2]?'disabled':''} onchange="tog('${s[0]}',this.checked)"> ${s[1]}</label>`).join('');
+ const used=SLOTS.reduce((a,s)=>a+(win[s[0]]?s[3]:0),0);$('#meter').style.width=used+'%'}
+function tog(k,v){win[k]=v?1:0;store.set('w3win',win);drawSlots()}
+function askWin(){const a=$('#ans');let src,txt,cls;
+ if(win.pol){cls='f';txt='Yes. Invoices over $5,000.00 need the controller\'s approval — "4.1" quoted.';src='<span class="pill ch">Source: the chat (attached policy)</span>'}
+ else if(win.mem){cls='f';txt='Yes — over $5,000 needs the controller.';src='<span class="pill ch">Source: the chat (memory note the app inserted)</span> <span style="font-size:13px">The model learned nothing — the app put the note back in.</span>'}
+ else if(win.hist&&win._hadPolicy){cls='f';txt='Yes — as the policy said earlier, over $5,000 needs the controller.';src='<span class="pill ch">Source: the chat (earlier turn, re-sent by the app)</span>'}
+ else if(win.web){cls='g';txt='Many companies use $5,000–$10,000 limits, so probably yes or no depending on…';src='<span class="pill tl">Source: a tool</span> <span style="font-size:13px">Search can\'t find a private, fictional policy — still a guess dressed as research.</span>'}
+ else{cls='g';const g=["Probably not — most mid-sized firms set the limit at $10,000.","Typically invoices over $10,000 need sign-off, so no.","Yes, approvals usually start at $5,000 — but I can't see your policy."];txt=g[Math.floor(Math.random()*g.length)];src='<span class="pill tr">Source: training — a guess</span> <span style="font-size:13px">Sounds sure. Brightline was never in its training text.</span>'}
+ if(win.pol)win._hadPolicy=1;
+ a.className='answer '+cls;a.innerHTML=`<b>${txt}</b><div style="margin-top:6px">${src}</div>`}
+function newChat(){win={q:1,sys:win.sys||0,mem:win.mem||0};store.set('w3win',win);drawSlots();$('#ans').className='answer';$('#ans').innerHTML='<b>New chat.</b><div style="color:var(--muted);font-size:14px">Conversation and attached files are gone. Only standing instructions and memory notes (if on) come back.</div>'}
+drawSlots();
+
+// tokens
+const TOKD={"strawberry":["str","aw","berry"],"brightline":["Bright","line"],"approval":["appro","val"],"reconciliation":["rec","on","cil","iation"]};
+function split(w){const sp=w.startsWith(' ');w=w.trim();const l=w.toLowerCase();let o;
+ if(TOKD[l])o=[...TOKD[l]];
+ else if(/[^\x00-\x7F]/.test(w))o=[...w].reduce((a,c,i)=>{if(i%2===0)a.push(c);else a[a.length-1]+=c;return a},[]);
+ else if(w.length<=5)o=[w];
+ else{o=[];for(let i=0;i<w.length;i+=4)o.push(w.slice(i,i+4))}
+ if(sp)o[0]=' '+o[0];return o}
+const TC=['#f6e3d9','#dde8f5','#dff0e5','#f8ecd2','#ece0f6'];
+function setTok(w){$('#tokIn').value=w;tokenize()}
+function tokenize(){const v=$('#tokIn').value.trim();const words=v.split(/\s+/).filter(Boolean);let all=[];words.forEach((w,i)=>{all=all.concat(split(i?' '+w:w).map(x=>x))});
+ $('#toks').innerHTML=all.map((t,i)=>`<span class="tok" style="background:${TC[i%TC.length]};color:#1d1d1b;animation-delay:${i*90}ms">${esc(t).replace(/ /g,'·')}</span>`).join('');
+ const r=(v.match(/r/gi)||[]).length;$('#tokMsg').innerHTML=`<b>${all.length}</b> tokens for <b>${words.length}</b> word(s). Real letter count of "r": <b>${r}</b> — but the model sees <b>${all.length}</b> pieces, not ${v.replace(/\s/g,'').length} letters. Ask it to spell the word out, or run code, to count reliably.`}
+tokenize();
+
+// jagged frontier
+const JG=[["Explain quantum mechanics",90,"🟢"],["Count r's in strawberry",25,"🔴"],["Draft a legal clause",85,"🟢"],["3-step logic riddle",35,"🔴"],["Write working code",88,"🟢"],["Add two big numbers in its head",30,"🔴"]];
+$('#jagl').innerHTML=JG.map(j=>`<div>${j[0]}</div>`).join('');
+$('#jag').innerHTML=JG.map(j=>`<div style="background:${j[1]>50?'var(--ok)':'var(--bad)'}"><span>${j[2]}</span></div>`).join('');
+function drawJag(){const d=$$('#jag>div');d.forEach(x=>x.style.height=0);setTimeout(()=>d.forEach((x,i)=>x.style.height=JG[i][1]+'%'),80)}
+setTimeout(drawJag,200);
+
+// agent loop
+const LOOP=[[0,"Model predicts: \"run_code: count 'r' in the sentence\""],[1,"App runs Python in a sandbox…"],[2,"Result enters window: 5"],[0,"Model predicts: \"The sentence has 5 r's. Here's the code: s.count('r')\""],[3,"You check: is the policy sentence really inside the code? ✔  Count came from a tool, not a guess."]];
+async function runLoop(){const n=$$('#loop .node'),log=$('#loopLog');log.innerHTML='';for(const [i,t] of LOOP){n.forEach(x=>x.classList.remove('act'));n[i].classList.add('act');log.innerHTML+=esc(t)+'<br>';await sleep(1100)}}
+
+// markdown
+const MD=`## Payment run — due by Fri 18 Sept
+
+| Vendor | Invoice | Amount |
+|---|---|---|
+| Midwest Packaging | INV-3088 | $7,800.00 |
+| Buckeye Office Supply | INV-3091 | $310.50 |
+| County Freight | INV-3094 | $2,980.00 |
+| Lakeview Paper | INV-3097 | $1,240.00 |
+| Delta Labels | INV-3101 | $1,358.60 |
+| Ohio Tape Co. | INV-3104 | $750.00 |
+
+**Total: $14,439.10**
+
+> Needs Dave's approval (policy 4.1, 4.3)`;
+$('#mdIn').value=MD;
+const DEST=[["chat","💬 Chat app","Rendered by the app — you never see the marks."],["box","📝 Plain-text note box","Dave sees raw #, | and ** at 4:52 → can't verify in time → run waits till Monday → 2 invoices paid late. Ask for <b>plain text, no markdown</b>."],["email","📧 Email","Usually pastes as a formatted page. Still check what you pasted."],["plain","✅ Plain text (asked for)","You asked: \"as plain text, no markdown marks\". Fits a box that can't show formatting."]];
+let dest='chat';
+$('#dest').innerHTML=DEST.map(d=>`<button class="chip" data-d="${d[0]}" onclick="setDest('${d[0]}')">${d[1]}</button>`).join('');
+function inl(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`(.+?)`/g,'<code>$1</code>')}
+function mdRender(src){const L=src.split('\n');let h='',i=0;while(i<L.length){const l=L[i];
+ if(/^#{1,3} /.test(l)){const n=l.match(/^#+/)[0].length;h+=`<h${n}>${inl(l.replace(/^#+ /,''))}</h${n}>`;i++}
+ else if(/^\|/.test(l)){const rows=[];while(i<L.length&&/^\|/.test(L[i])){rows.push(L[i]);i++}const cells=r=>r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());h+='<table>';rows.forEach((r,k)=>{if(/^\|[\s\-:|]+\|$/.test(r))return;h+='<tr>'+cells(r).map(c=>k===0?`<th>${inl(c)}</th>`:`<td>${inl(c)}</td>`).join('')+'</tr>'});h+='</table>'}
+ else if(/^- /.test(l)){h+='<ul>';while(i<L.length&&/^- /.test(L[i])){h+=`<li>${inl(L[i].slice(2))}</li>`;i++}h+='</ul>'}
+ else if(/^> /.test(l)){h+=`<blockquote>${inl(l.slice(2))}</blockquote>`;i++}
+ else if(l.trim()===''){i++}else{h+=`<p>${inl(l)}</p>`;i++}}return h}
+function toPlain(src){return src.split('\n').filter(l=>!/^\|[\s\-:|]+\|$/.test(l)).map(l=>l.replace(/^#+ /,'').replace(/\*\*/g,'').replace(/^> /,'Note: ').replace(/^\|/,'').replace(/\|$/,'').replace(/\s*\|\s*/g,' — ').trim()).join('\n').replace(/\n{3,}/g,'\n\n')}
+function setDest(d){dest=d;$$('#dest .chip').forEach(b=>b.classList.toggle('on',b.dataset.d===d));const D=DEST.find(x=>x[0]===d);$('#destMsg').innerHTML=D[2];
+ $('#destLbl').textContent='What lands in: '+D[1].replace(/^\S+ /,'');const v=$('#mdIn').value;
+ $('#mdOut').innerHTML=(d==='chat'||d==='email')?mdRender(v):d==='box'?`<pre class="raw">${esc(v)}</pre>`:`<pre class="raw">${esc(toPlain(v))}</pre>`;
+ $('#mdOut').style.borderColor=d==='box'?'var(--bad)':d==='plain'?'var(--ok)':'var(--line)'}
+$('#mdIn').addEventListener('input',()=>setDest(dest));setDest('chat');
+
+// AP sort
+const OPTS=["Rule ✓ matches policy","Rule ✗ contradicts policy","Remark","Open question"];
+const AP=[["Invoices over $5,000 need Dave's approval.",0,"Matches <b>policy 4.1</b> — tag it \"(policy 4.1)\"."],
+ ["Dave is thinking about raising the limit to $10,000 next year.",2,"An idea, not a rule. Under <b>Remarks</b>."],
+ ["If a vendor emails new bank details, reply to confirm and update the record.",1,"Looks just as neat — but <b>contradicts 5.1</b>: never change bank details because of an email; call the number already in the vendor record. <b>Policy wins.</b>"],
+ ["We pay suppliers every Friday.",3,"No policy line names Friday — <b>4.3</b> only says the controller approves every <i>weekly</i> run. Move to Open questions."],
+ ["How do we pay invoices in Canadian dollars?",3,"Unresolved → <b>Open questions</b>, so AI flags the gap instead of guessing."],
+ ["The controller approves every weekly payment run.",0,"Matches <b>policy 4.3</b>."]];
+let apDone={};
+$('#apSort').innerHTML=AP.map((a,i)=>`<div class="inv" id="ap${i}"><span style="flex:1 1 300px">${a[0]}</span><span class="choice">${OPTS.map((o,j)=>`<button onclick="apAns(${i},${j})">${o}</button>`).join('')}</span><div class="fb" id="apf${i}"></div></div>`).join('');
+function apAns(i,j){const ok=AP[i][1]===j,el=$('#ap'+i);el.className='inv '+(ok?'right':'wrong');$('#apf'+i).innerHTML=(ok?'✅ ':'❌ Try again. ')+(ok?AP[i][2]:'');if(ok)apDone[i]=1;const n=Object.keys(apDone).length;$('#apScore').textContent=n===AP.length?'🎉 Page checked — save it as brightline-ap-notes.md':`${n} / ${AP.length} sorted`}
+
+// spec
+const SPEC=[["Every rule in its own words, with its policy line",1],["Open questions under their own heading",1],["Make it look good",0],["No remarks",1],["Nothing that isn't on the page",1],["Easy to read on a phone",1]];
+$('#spec').innerHTML=SPEC.map((s,i)=>`<div class="inv" style="cursor:pointer" onclick="this.className='inv ${s[1]?'right':'wrong'}';this.querySelector('.fb').innerHTML='${s[1]?'✅ Checkable in about a minute.':'❌ Cannot be checked — a bad copy passes it.'}'"><span>${i+1}. ${s[0]}</span><div class="fb"></div></div>`).join('')+'<p style="font-size:13.5px;color:var(--muted)">At 9:14 one vendor\'s web page dropped the open question → failed line 2 → re-requested.</p>';
+
+// modes sorter
+const MODES=["Automation","Augmentation","Agency"];
+const MJ=[["Turn a list of invoice numbers into a table.",0,"You gave the task and steps; it did exactly that."],["Work out, back and forth, why a vendor's balance doesn't match.",1,"Thinking partners — both shape the answer turn by turn."],["Check every vendor statement against the register each month-end, unwatched, and leave a table.",2,"It runs later without you; everything you give it comes before the work."],["Ask AI to put each statement line in a table — once, while you wait.",0,"Automation ≠ scheduled. You're there when it returns."]];
+$('#modeSort').innerHTML=MJ.map((m,i)=>`<div class="inv" id="mj${i}"><span style="flex:1 1 300px">${m[0]}</span><span class="choice">${MODES.map((o,j)=>`<button onclick="mjAns(${i},${j})">${o}</button>`).join('')}</span><div class="fb" id="mjf${i}"></div></div>`).join('');
+function mjAns(i,j){const ok=MJ[i][1]===j;$('#mj'+i).className='inv '+(ok?'right':'wrong');$('#mjf'+i).innerHTML=ok?'✅ '+MJ[i][2]:'❌ Who picks the next step? Are you there?'}
+
+// four Ds
+const FD=[["🧭","Delegation","Decide what people do, what AI does, how to split.",["Problem awareness — your goal & kind of work","Platform awareness — what each AI can/can't do","Task delegation — task by task, incl. what stays with a person"],"Before the first run, in writing."],
+ ["📝","Description","Communicate effectively with AI.",["Product — what you want back: format, audience, style","Process — how to approach it, steps","Performance — how to behave (brief/detailed, when unsure…)"],"Before the first run — stored where every run reads it. A run has no next turn."],
+ ["🔍","Discernment","Judge what it made, how, and how it behaved.",["Product — accurate, relevant, makes sense?","Process — logic errors, missed items, extra steps?","Performance — did it behave & communicate as needed?"],"After each run, at a set time — using output + run's record + source."],
+ ["🛡️","Diligence","Use AI responsibly and ethically.",["Creation — which tools, what goes in","Transparency — honest about AI's part to all who rely on it","Deployment — check it and stand behind it (sign)"],"Throughout the whole job."]];
+$('#fourD').innerHTML=FD.map(d=>`<div class="bp" onclick="this.classList.toggle('open')"><span class="ic">${d[0]}</span><b>${d[1]}</b><div style="font-size:13.5px">${d[2]}</div><div class="ex"><ul class="b">${d[3].map(x=>`<li>${x}</li>`).join('')}</ul><p style="margin:6px 0 0"><b>When alone:</b> ${d[4]}</p></div></div>`).join('');
+
+// lanes
+const LN={chat:{rows:[["Delegation",[1,1,1]],["Description",[1,1,1]],["Discernment",[1,1,1]],["Diligence",[1,1,1]]],msg:"In a chat (~20 min, Buckeye reconciliation): at 2:05 you stopped a table that changed the register, fixed the description (\"explain, change nothing\"), checked a row, and told Dave at 2:20 that AI drafted it."},
+ alone:{rows:[["Delegation",[1,0,0]],["Description",[1,0,0]],["Discernment",[0,0,1]],["Diligence",[1,1,1]]],msg:"When AI works alone, <b>nobody acts during the run</b>. Delegation &amp; Description are written before; Discernment happens after at a set time; Diligence runs throughout. <i>Humans define intent → AI executes → humans verify.</i>"}};
+function lanes(m){$('#lnChat').classList.toggle('on',m==='chat');$('#lnAlone').classList.toggle('on',m==='alone');const L=LN[m];
+ $('#laneRows').innerHTML=L.rows.map(r=>`<div class="lane"><div class="lab">${r[0]}</div>${r[1].map((v,k)=>`<div class="cell ${k===1&&m==='alone'?'run':''}">${v?'●':''}</div>`).join('')}</div>`).join('');
+ $('#laneMsg').innerHTML=L.msg;setTimeout(()=>$$('#laneRows .lane').forEach((ln,i)=>[...ln.querySelectorAll('.cell')].forEach((c,k)=>{if(L.rows[i][1][k])setTimeout(()=>c.classList.add('lit'),(i*3+k)*90)})),50)}
+lanes('chat');
+
+// Dave timeline
+const DV=["<b>Delegation:</b> compare statement with register, explain every difference. Change nothing, contact nobody. <b>Description:</b> one row per difference; no reason → \"the statement does not show\". <b>Diligence:</b> only statement + register go in; table says AI made it.","The run reads the page, the statement and the register. Nobody watches. It leaves a table and a record of what it did.","<b>Discernment:</b> Dave reads the table <i>and</i> the run's record, then checks two differences against their invoices. Both match.","<b>Diligence:</b> Dave signs. Nothing reached Buckeye Office Supply before this. If a check had failed → fix the <b>page</b>, run again."];
+async function playDave(){const n=$$('#dtl .node');n.forEach(x=>x.classList.remove('act'));for(let i=0;i<n.length;i++){n.forEach(x=>x.classList.remove('act'));n[i].classList.add('act');$('#dtlLog').innerHTML=DV[i];await sleep(2600)}}
+
+// next D
+const DS=["Delegation","Description","Discernment","Diligence"];
+const ND=[["Expenses show amounts but no dates.",1,"The AI needs to be told what to write when data is missing."],["A daily filing job — nobody has decided if it may move files without asking.",0,"Who does what, and what waits for a person, isn't decided yet."],["A late-payments table is ready for a vendor — no named signer, no AI disclosure.",3,"Who signs, and who's told AI made it?"],["AI says County Freight owes $2,980.00 and you're about to copy it into a report.",2,"Check it against the source before using it."]];
+$('#nextD').innerHTML=ND.map((m,i)=>`<div class="inv" id="nd${i}"><span style="flex:1 1 300px">${m[0]}</span><span class="choice">${DS.map((o,j)=>`<button onclick="ndAns(${i},${j})">${o}</button>`).join('')}</span><div class="fb" id="ndf${i}"></div></div>`).join('');
+function ndAns(i,j){const ok=ND[i][1]===j;$('#nd'+i).className='inv '+(ok?'right':'wrong');$('#ndf'+i).innerHTML=ok?'✅ '+ND[i][2]:'❌ Not quite — which D is missing?'}
+
+// 4D plan builder
+const PL=[["Delegation","Make the table of invoices due this week. Change nothing in the register and contact no vendor — both wait for a person.","Before the first run"],["Description","One row per invoice: vendor, invoice, amount, due date. If there is no due date, write \"no due date\" instead of guessing.","Before the first run"],["Discernment","Ana reads the table and the run's record every Monday at 9:00 and checks two rows against the register.","After each run"],["Diligence","Only the register goes in. The table says AI made it. Nothing is used until Dave signs.","Throughout"]];
+let plan=store.get('w3plan',PL.map(p=>[p[1],p[2]]));
+const WH=["Before the first run","After each run","Throughout"];
+$('#planIn').innerHTML=PL.map((p,i)=>`<div style="display:grid;grid-template-columns:110px 1fr 170px;gap:8px;margin:6px 0;align-items:start"><b style="padding-top:8px">${p[0]}</b><textarea rows="2" oninput="plan[${i}][0]=this.value;planMD()" style="font-family:inherit">${esc(plan[i][0])}</textarea><select onchange="plan[${i}][1]=this.value;planMD()">${WH.map(w=>`<option ${w===plan[i][1]?'selected':''}>${w}</option>`).join('')}</select></div>`).join('');
+function planMD(){store.set('w3plan',plan);$('#planOut').value=`# 4D plan — weekly invoices-due table\n\nJob: every Monday at 7:00, make a table of invoices due that week from Brightline's register.\n\n| D | Line | When |\n|---|---|---|\n`+PL.map((p,i)=>`| ${p[0]} | ${plan[i][0].replace(/\|/g,'/').replace(/\n/g,' ')} | ${plan[i][1]} |`).join('\n')+'\n'}
+planMD();
+function copyTxt(id){const t=$('#'+id);t.select();if(navigator.clipboard)navigator.clipboard.writeText(t.value).catch(()=>document.execCommand('copy'));else document.execCommand('copy')}
+function dl(id,name){const b=new Blob([$('#'+id).value],{type:'text/markdown'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+
+// memo traps
+const MEMO=[["Recommendation: Brightline should take every early-payment discount, starting with the 6 November payment run.",null],
+ ["September vendor payments were $176,100.25.","<b>Uncertain:</b> the file shows <i>invoices</i>, not payments — \"paid\" has no support. And one <b>$148,500</b> invoice (INV-3115, one-time equipment) is 84 % of September → <b>sample not typical</b>."],
+ ["A 2% discount equals $3,522.01 a month, or about $42,264 a year.","<b>Number too exact</b> (to the cent from a rough guess) + <b>claim too wide</b> — only 4 of 7 vendors give any discount, two give only 1 %."],
+ ["Most distributors of Brightline's size take every discount offered.","<b>Not supported</b> — no source named. Weakest kind of evidence."],
+ ["Paying 20 days early costs nothing, because the cash would be paid out anyway.","<b>Counting one side / contradicted:</b> treasury note says some early payments need the credit line at <b>9 %</b> a year."],
+ ["Vendors like early payment, so relationships will improve across all seven vendors.","<b>Prediction + cause, too wide</b> — and three of the seven offer no discount at all."]];
+let found=0;
+$('#memo').innerHTML=MEMO.map((m,i)=>`<p><span class="s" onclick="trap(${i},this)">${m[0]}</span></p>`).join('');
+function trap(i,el){const t=MEMO[i][1];if(!t){$('#trapMsg').innerHTML='That\'s the recommendation itself — check the facts <i>beneath</i> it.';return}if(!el.classList.contains('found')){el.classList.add('found');found++}$('#trapMsg').innerHTML=`Found ${found} of 5 problems.<br>${t}`}
+
+// checkpoint
+const CP=[["1 · What exactly is claimed?","Taking every discount saves about <b>$42,264 a year</b>. (Check the words — \"paid\" vs \"invoiced\"?)"],["2 · What is it based on?","One month's figure × 2 % × 12."],["3 · What is assumed?","Every vendor gives 2 % · September is a normal month · paying early is free."],["4 · What would change it?","Some vendors give no discount · Brightline must borrow to pay early. → Then go <b>check</b> those facts."],["👤 Who decides? Write it down.","<b>Dave</b> is the decision owner. AI recommends; a person decides, in writing."]];
+let cpi=0;$('#cp').innerHTML=CP.map(c=>`<div class="cpq"><b>${c[0]}</b><div class="a">${c[1]}</div></div>`).join('');
+function cpNext(){const q=$$('.cpq');if(cpi<q.length){q[cpi].classList.add('lit');cpi++}}
+function cpReset(){cpi=0;$$('.cpq').forEach(q=>q.classList.remove('lit'))}
+
+// claim status
+const ST=["Supported","Not supported","Contradicted","Uncertain"];
+const CL=[["\"The Q3 invoices come from seven vendors.\"",0,"The invoice file lists seven. Use it and say where."],["\"Most distributors of Brightline's size take every discount.\"",1,"No source given. Treat as unknown."],["\"Paying 20 days early costs Brightline nothing.\"",2,"Treasury note: some early payments need the 9 % credit line. Sounds like opinion — it's a testable fact."],["\"In September, Brightline paid $176,100.25 to vendors.\"",3,"The total matches the invoices, but the file doesn't show payments. Name the check that decides it."]];
+$('#claimSort').innerHTML=CL.map((m,i)=>`<div class="inv" id="cl${i}"><span style="flex:1 1 300px">${m[0]}</span><span class="choice">${ST.map((o,j)=>`<button onclick="clAns(${i},${j})">${o}</button>`).join('')}</span><div class="fb" id="clf${i}"></div></div>`).join('')+'<p style="font-size:13.5px;color:var(--muted)">Source strength: original record &gt; summary of a record &gt; no source. A citation claims two things — it exists, and it says that. Open it.</p>';
+function clAns(i,j){const ok=CL[i][1]===j;$('#cl'+i).className='inv '+(ok?'right':'wrong');$('#clf'+i).innerHTML=ok?'✅ '+CL[i][2]:'❌ What evidence have you actually seen?'}
+
+// calculator
+function preset(d,n,N){$('#cd').value=d;$('#cn').value=n;$('#cN').value=N;calc()}
+function calc(){const d=+$('#cd').value/100,n=+$('#cn').value,N=+$('#cN').value;if(N<=n||d<=0||d>=1){$('#cr').textContent='—';$('#cv').textContent='Net days must be more than discount days.';return}
+ const r=d/(1-d)*365/(N-n)*100;$('#cr').textContent=r.toFixed(1)+' % / yr';const take=r>9;$('#cv').innerHTML=take?'<span style="color:var(--ok)">✅ Beats 9 % borrowing — take it</span>':'<span style="color:var(--bad)">❌ Below 9 % borrowing — skip while early pay means borrowing</span>'}
+['cd','cn','cN'].forEach(id=>$('#'+id).addEventListener('input',calc));calc();
+
+// shrink
+const SH=[["Memo claim (Sept × 2 % × 12)",42264],["If you only take the discounts actually offered (Q3 $814.09 × 4)",3256.36],["Only the ones worth more than 9 % (Q3 $660.14 × 4)",2640.56]];
+$('#shrink').innerHTML=SH.map(s=>`<div class="sh"><span>${s[0]}</span><div class="t"><i data-w="${s[1]/42264*100}"></i></div><b>$${Math.round(s[1]).toLocaleString()}</b></div>`).join('')+'<p style="font-size:14px;margin:4px 0 0"><b>$42,264 claimed → ≈ $2,640 a year.</b> That\'s why judgment is the job.</p>';
+async function playShrink(){const b=$$('#shrink i');b.forEach(x=>x.style.width=0);for(const x of b){await sleep(700);x.style.width=Math.max(+x.dataset.w,1.2)+'%'}}
+
+// evidence grid
+const EG={a:["Decide quickly","e.g. one $26 discount on one payment run — easy to stop next week."],b:["Check the key numbers","Easy to undo but a lot of money moves — verify the figures first."],c:["Check the assumptions","Small sums but hard to undo — are the conditions you rely on true?"],d:["Check fully + involve the owner","e.g. a three-year vendor contract, or a $148,500 payment."]};
+$('#eg').innerHTML=`<div></div><div class="h">Small loss</div><div class="h">Large loss</div><div class="h">Easy to undo</div><div class="c" data-k="a">${EG.a[0]}</div><div class="c" data-k="b">${EG.b[0]}</div><div class="h">Hard to undo</div><div class="c" data-k="c">${EG.c[0]}</div><div class="c" data-k="d">${EG.d[0]}</div>`;
+$$('#eg .c').forEach(c=>c.onclick=()=>{$$('#eg .c').forEach(x=>x.classList.remove('on'));c.classList.add('on');$('#egMsg').innerHTML=EG[c.dataset.k][1]});
+
+// stages
+const SQ=[["You re-ran the September total with code and checked one invoice on a calculator.",0],["Dave could name the checks (vendor terms, September invoices, borrowing cost) but was about to forward the memo anyway.",1],["You approve AI reports every week but can no longer say what you would check.",2]];
+const SN=["Delegation","Deferral","Surrender"];
+$('#stageQ').innerHTML=SQ.map((m,i)=>`<div class="inv" id="sq${i}"><span style="flex:1 1 300px">${m[0]}</span><span class="choice">${SN.map((o,j)=>`<button onclick="sqAns(${i},${j})">${o}</button>`).join('')}</span></div>`).join('');
+function sqAns(i,j){const ok=SQ[i][1]===j;$('#sq'+i).className='inv '+(ok?'right':'wrong');$$('.stg').forEach((s,k)=>s.classList.toggle('hit',ok&&k===j))}
+const EX=[["Alone",46,"var(--blue)"],["Correct chatbot",71,"var(--ok)"],["Wrong chatbot",31,"var(--bad)"]];
+$('#expBars').innerHTML=EX.map(e=>`<div class="exp"><span>${e[0]}</span><div class="t"><i style="background:${e[2]}" data-w="${e[1]}"></i></div><b>~${e[1]}%</b></div>`).join('');
+function drawExp(){$$('#expBars i').forEach(x=>x.style.width=0);setTimeout(()=>$$('#expBars i').forEach(x=>x.style.width=x.dataset.w+'%'),80)}
+
+// decision note
+const NT=[["Recommendation","Take 2/10 net 30 and 1/10 net 30 discounts. Skip 1/10 net 60 while paying early means borrowing at 9 %."],["Evidence","Sept invoices $176,100.25 (q3-invoices.csv); INV-3115 $148,500 = 84 % of Sept, no discount, one-time (treasury note); 4 of 7 vendors offer a discount; Q3 discounts $814.09; worth more than 9 %: $660.14 (≈ $2,640/yr). All re-run with code."],["Assumptions","Next quarter looks like Q3. The 9 % borrowing cost holds."],["What would change it","Cash position, the borrowing rate, or vendor terms change. Review after three months of real results."],["Decision owner","Dave decides. I need his yes before Friday's payment run."],["AI disclosure","An AI assistant drafted the first memo. Code re-ran its numbers on the Q3 export, and I checked them against the file."]];
+let note=store.get('w3note',NT.map(n=>n[1]));
+$('#noteIn').innerHTML=NT.map((n,i)=>`<div style="display:grid;grid-template-columns:150px 1fr;gap:8px;margin:6px 0;align-items:start"><b style="padding-top:8px">${n[0]}</b><textarea rows="2" style="font-family:inherit" oninput="note[${i}]=this.value;noteMD()">${esc(note[i])}</textarea></div>`).join('');
+function noteMD(){store.set('w3note',note);const d=new Date().toISOString().slice(0,10);$('#noteOut').value=`# Decision note — early-payment discounts\n\n*Date: ${d} · For: Dave (controller)*\n\n`+NT.map((n,i)=>`## ${n[0]}\n${note[i]}\n`).join('\n')}
+noteMD();
+
+// labs
+const LABS=[["Lab 0.1 · Where the answer comes from (15 min) → AI field notes",["New chat: does a $7,800 Midwest Packaging invoice need approval? (training)","Ask again in a 2nd new chat — different answer? (training)","Add policy line 4.1, ask it to quote it (the chat)","Push back: \"I think the limit is $10,000\" (held or caved?)","Brand-new chat, same question — guess again (training)","Count the r's in the policy sentence — correct answer 5","\"Count them by running code, show the code\" → 5 (a tool)","Save your 7-row field-notes table"]],
+ ["Lab 0.2 · One page, checked (20 min) → brightline-ap-notes.md",["Payment list due by 18 Sept → 6 invoices, bold total $14,439.10","Paste into an email and a plain text editor — formatted vs raw marks","Ask for plain text, no markdown","Sort ap-notes.txt into Rules · Remarks · Open questions","Attach ap-policy-v3.pdf and match each rule to a line","Fix: bank rule → 5.1 wording, add (policy 4.1)/(5.1), move Friday to Open questions","Save as brightline-ap-notes.md","New chat with the page only: $7,800 → yes (policy 4.1); CAD → still open"]],
+ ["Lab 0.3 · Your 4D plan, before the run (15 min) → 4d-plan.md",["Sort 3 jobs: automation · augmentation · agency","Write a 4D plan (D · line · when) for the Monday 7:00 invoices table","Name the next D for 4 situations","Test your Description line in 2 temporary chats (\"no due date\" for Buckeye)","Save as 4d-plan.md"]],
+ ["Lab 0.4 · The discount memo (~1 h 20 min; short track = steps 1–4) → decision note",["Practice the checkpoint on a sports-club summary (3 errors)","Four questions on the memo — answer before the AI","Sort claims: kind + evidence status","Guess first, then code on q3-invoices.csv: $176,100.25 · INV-3115 84 % · 4 of 7 · $814.09","Annual returns vs 9 %: ≈37 % · ≈18 % · ≈7 % → $660.14 worthwhile","AI argues against the memo in two apps — agree / disagree / both missed","Leading vs neutral question in temporary chats","Answer 7 questions → brightline-decision-note.md","Name the stage: you = delegation, Dave = deferral"]]];
+let ld=store.get('w3labs',{});
+function drawLabs(){let t=0,d=0;$('#labs').innerHTML=LABS.map((L,a)=>`<h3 style="margin-top:14px">${L[0]}</h3>`+L[1].map((s,b)=>{t++;const k=a+'-'+b,on=!!ld[k];if(on)d++;return `<label class="lab ${on?'done':''}"><input type="checkbox" ${on?'checked':''} onchange="ld['${k}']=this.checked;store.set('w3labs',ld);drawLabs()"><span>${s}</span></label>`}).join('')).join('');
+ $('#labMsg').textContent=d===t?'🎉 All four keeper files done — add them to your portfolio!':`${d} / ${t} steps done`}
+drawLabs();
+
+// quiz
+const QZ=[
+ ["When you send a message, what does the model do?",["Looks the answer up in a store of facts","Searches the web and reads you the best page","Continues the text with likely next pieces","Checks its answer against what it learned"],2,"It predicts — one piece at a time — from training + the context window."],
+ ["What are the model's only two sources?",["Training and the context window","The internet and your files","Its memory and your account","The vendor's database and web search"],0,"Everything else (files, memory notes, tool results) arrives through the window."],
+ ["Why did a new chat 'forget' the policy you attached yesterday?",["The model deleted it","A new chat starts with a new window — the model learned nothing","The policy expired","The free plan blocks files"],1,"The app, not the model, puts old text back in. A new chat has none of it (unless a memory note is on)."],
+ ["Why can AI miscount the r's in 'strawberry'?",["It's lazy","It reads tokens (pieces of words), not single letters","It never saw the word","Counting needs the paid plan"],1,"str · aw · berry — the r's are hidden inside pieces. Spell it out or run code."],
+ ["A model 'searches the web'. Who actually runs the search?",["The model","The app — then puts the result in the window","The website","You"],1,"The model only writes the request. And a tool result is evidence, not proof."],
+ ["You paste AI output into a plain-text box and see ## and **. What should you have asked for?",["A bigger box","Plain text with no markdown marks","A screenshot","More bold"],1,"The destination decides whether marks help or hurt."],
+ ["A rule in a neat markdown bullet contradicts policy 5.1. What wins?",["The neat page","The policy","Whichever the AI wrote last","The longer one"],1,"Neat ≠ checked. A wrong rule looks just as tidy."],
+ ["The reconciliation runs every month-end with nobody watching. Which mode?",["Automation","Augmentation","Agency","Delegation"],2,"The AI picks its steps inside what you set up; you're not there. (Delegation is a D, not a mode.)"],
+ ["When the AI works alone, when are Delegation and Description done?",["During the run","After each run","Before the first run, in writing","Never"],2,"A run only has what was written before it started — it has no next turn."],
+ ["Which list is the checkpoint?",["Spelling, tone, length, format","Claim, basis, assumptions, what would change it — then the owner","Ask, ask again, average","Read, summarise, approve, forward"],1,"Four questions + name the decision owner, in writing."],
+ ["Why is September a bad month to multiply by 12?",["It has 30 days","Most of it is one $148,500 invoice that won't repeat","Vendors are closed","Q3 ends in September"],1,"Trap: a sample that isn't typical."],
+ ["A 1/10 net 60 discount returns ~7 % a year; borrowing costs 9 %. What should Brightline do?",["Take it — any discount is free money","Skip it while early payment means borrowing","Borrow more","Ask the vendor for 2 %"],1,"Paying early isn't free: 7 % earned < 9 % paid."],
+ ["Which decision needs the most evidence?",["One discount on one payment run","A new report layout for a week","A three-year vendor contract","A second neutral question to the AI"],2,"Hard to undo + large stakes → check fully and involve the owner."],
+ ["\"I could check, but I don't.\" Which stage?",["Delegation","Deferral","Surrender","Diligence"],1,"Deferral. Surrender is when you can no longer say what you'd check."],
+ ["A tool shows you the model's 'thinking'. How do you treat it?",["As proof","As a draft of reasoning to check","As the vendor's guarantee","Ignore the answer"],1,"Thinking is more predicted text — not a truth-checker."]];
+let qa=store.get('w3quiz',{});
+$('#quiz').innerHTML=QZ.map((q,i)=>`<div class="q"><p>${i+1}. ${q[0]}</p>${q[1].map((o,j)=>`<button class="opt" onclick="ans(${i},${j})">${o}</button>`).join('')}<div class="why" id="why${i}"></div></div>`).join('');
+function ans(i,j,silent){qa[i]=j;store.set('w3quiz',qa);const q=$$('#quiz .q')[i],b=[...q.querySelectorAll('.opt')];b.forEach((x,k)=>{x.className='opt'+(k===QZ[i][2]?' right':k===j?' wrong':'')});$('#why'+i).innerHTML=(j===QZ[i][2]?'✅ ':'❌ ')+QZ[i][3];
+ const n=Object.keys(qa).length,s=Object.entries(qa).filter(([k,v])=>QZ[k][2]===v).length;$('#qscore').textContent=`Score: ${s} / ${QZ.length}`+(n===QZ.length?(s>=12?' — fluent! 🎉':' — review the tabs and try again'):'')}
+Object.entries(qa).forEach(([i,j])=>ans(+i,j,1));
+</script>
+</body>
+</html>
