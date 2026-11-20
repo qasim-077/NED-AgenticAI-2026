@@ -573,6 +573,7 @@ Use the **Quiz** tab in [`interactive.html`](./interactive.html).
 ---
 
 ## Resources
+- 📚 **Study notes for every book page, inside this repo:** [`book/`](./book/README.md) — [Part 0](./book/00-part-0-overview.md) · [0.1](./book/01-what-ai-actually-is.md) · [0.2](./book/02-markdown.md) · [0.3](./book/03-ai-fluency-4ds.md) · [0.4](./book/04-critical-thinking.md)
 - [Part 0 overview](https://agentfactory.panaversity.org/how-ai-works/overview/)
 - **Ch 0.1** [overview](https://agentfactory.panaversity.org/how-ai-works/what-ai-actually-is/overview/) · [0.1.1](https://agentfactory.panaversity.org/how-ai-works/what-ai-actually-is/the-machine/) · [0.1.2](https://agentfactory.panaversity.org/how-ai-works/what-ai-actually-is/why-it-behaves/) · [0.1.3](https://agentfactory.panaversity.org/how-ai-works/what-ai-actually-is/from-predictor-to-worker/) · [0.1.4](https://agentfactory.panaversity.org/how-ai-works/what-ai-actually-is/both-ai-vendors/) · [Lab](https://agentfactory.panaversity.org/how-ai-works/what-ai-actually-is/lab/)
 - **Ch 0.2** [overview](https://agentfactory.panaversity.org/how-ai-works/markdown/overview/) · [0.2.1](https://agentfactory.panaversity.org/how-ai-works/markdown/markdown-going-in/) · [0.2.2](https://agentfactory.panaversity.org/how-ai-works/markdown/what-comes-back/) · [0.2.3](https://agentfactory.panaversity.org/how-ai-works/markdown/one-short-specification/) · [0.2.4](https://agentfactory.panaversity.org/how-ai-works/markdown/both-ai-vendors/) · [Lab](https://agentfactory.panaversity.org/how-ai-works/markdown/lab/)

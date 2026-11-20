@@ -88,7 +88,7 @@ const WEEKS=[
   summary:"What sits behind an AI Worker: a predictor with two sources and no truth-checker, the markdown it reads and writes, the 4Ds of AI fluency, and the checkpoint habit that turns a fluent draft into a decision you can defend.",
   topics:["Prediction, not lookup","Context window","Tokens","Agent loop","Markdown","Three modes","4Ds","The checkpoint","Claims & evidence","Reasoning traps","Decision note","Delegation vs surrender"],
   interactive:"week-03/interactive.html",notes:"week-03/",
-  sources:[["Part 0 · How AI Works","https://agentfactory.panaversity.org/how-ai-works/overview/"],["0.1 What AI Actually Is","https://agentfactory.panaversity.org/how-ai-works/what-ai-actually-is/overview/"],["0.2 Markdown: The Language AI Reads and Writes","https://agentfactory.panaversity.org/how-ai-works/markdown/overview/"],["0.3 AI Fluency: The 4Ds","https://agentfactory.panaversity.org/how-ai-works/ai-fluency/overview/"],["0.4 Critical Thinking and Judgment in the AI Era","https://agentfactory.panaversity.org/how-ai-works/critical-thinking/overview/"]]}
+  sources:[["Part 0 · How AI Works","https://agentfactory.panaversity.org/how-ai-works/overview/","https://github.com/qasim-077/NED-AgenticAI-2026/blob/main/week-03/book/00-part-0-overview.md"],["0.1 What AI Actually Is","https://agentfactory.panaversity.org/how-ai-works/what-ai-actually-is/overview/","https://github.com/qasim-077/NED-AgenticAI-2026/blob/main/week-03/book/01-what-ai-actually-is.md"],["0.2 Markdown: The Language AI Reads and Writes","https://agentfactory.panaversity.org/how-ai-works/markdown/overview/","https://github.com/qasim-077/NED-AgenticAI-2026/blob/main/week-03/book/02-markdown.md"],["0.3 AI Fluency: The 4Ds","https://agentfactory.panaversity.org/how-ai-works/ai-fluency/overview/","https://github.com/qasim-077/NED-AgenticAI-2026/blob/main/week-03/book/03-ai-fluency-4ds.md"],["0.4 Critical Thinking and Judgment in the AI Era","https://agentfactory.panaversity.org/how-ai-works/critical-thinking/overview/","https://github.com/qasim-077/NED-AgenticAI-2026/blob/main/week-03/book/04-critical-thinking.md"]]}
 ];
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const topicsTotal=WEEKS.reduce((a,w)=>a+w.topics.length,0), srcTotal=WEEKS.reduce((a,w)=>a+w.sources.length,0);
@@ -106,7 +106,7 @@ list.innerHTML=WEEKS.map(w=>`<li class="week" data-s="${esc((w.title+' '+w.summa
       <a class="ghost" href="${w.notes}">Session notes</a>
     </div>
     <details><summary>Book pages for this week (${w.sources.length})</summary>
-      <ol>${w.sources.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join('')}</ol>
+      <ol>${w.sources.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a>${s[2]?` · <a href="${s[2]}" target="_blank" rel="noopener">study notes in repo</a>`:''}</li>`).join('')}</ol>
     </details>
   </div>
 </li>`).join('')+`<li class="week soon"><div class="num" aria-hidden="true">${WEEKS.length+1}</div><div class="body"><div class="date">Week ${WEEKS.length+1}</div><h2>Coming next</h2><p>Published after the session.</p></div></li>`;
